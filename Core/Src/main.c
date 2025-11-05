@@ -20,8 +20,10 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "can.h"
+#include "dma.h"
 #include "spi.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -90,9 +92,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI1_Init();
   MX_CAN1_Init();
   MX_TIM7_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
   /* USER CODE END 2 */
@@ -174,19 +178,19 @@ void SystemClock_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-// {
-//   /* USER CODE BEGIN Callback 0 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
 //
-//   /* USER CODE END Callback 0 */
-//   if (htim->Instance == TIM6)
-//   {
-//     HAL_IncTick();
-//   }
-//   /* USER CODE BEGIN Callback 1 */
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
 //
-//   /* USER CODE END Callback 1 */
-// }
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
