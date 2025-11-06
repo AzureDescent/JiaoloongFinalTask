@@ -39,14 +39,12 @@ add_executable(${CMAKE_PROJECT_NAME}
         UserCode/Inc/Control/pid.h
         UserCode/Inc/HAL/bmi088.h
         UserCode/Inc/RTOS/rtos.h
-        UserCode/Inc/Object/Chassis.h
         UserCode/Inc/Object/Gimbal.h
         UserCode/Src/Control/pid.cpp
         UserCode/Src/Device/imu.cpp
         UserCode/Src/HAL/bmi088.cpp
         UserCode/Src/Device/motor.cpp
         UserCode/Src/Device/rc.cpp
-        UserCode/Src/Object/Chassis.cpp
         UserCode/Src/Object/Gimbal.cpp
         UserCode/Src/RTOS/rtos.cpp
         UserCode/Src/RTOS/callback.cpp

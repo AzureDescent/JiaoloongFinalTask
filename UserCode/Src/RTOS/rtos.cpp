@@ -3,7 +3,3 @@
 //
 #include "rtos.h"
 
-void RTOS_Init()
-{
-
-}
