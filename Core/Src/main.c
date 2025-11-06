@@ -29,7 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "rtos.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,6 +50,35 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+Gimbal gimbal_controller;
+IMU imu_sensor;
+RemoteControl rc_controller;
+
+osThreadId_t control_task_handle;
+osThreadId_t imu_task_handle;
+osThreadId_t can_send_task_handle;
+osThreadId_t can_recv_task_handle;
+osThreadId_t iwdg_task_handle;
+
+osThreadId_t can_rx_queue_handle;
+
+osSemaphoreId_t rc_data_ready_semaphore_handle;
+osSemaphoreId_t imu_data_ready_semaphore_handle;
+
+osMutexId_t gimbal_mutex_handle;
+
+// TODO: FIX the CAN filter configuration as needed
+CAN_FilterTypeDef filter_config = {
+    .FilterIdHigh = 0x0000,
+    .FilterIdLow = 0x0000,
+    .FilterMaskIdHigh = 0x0000,
+    .FilterMaskIdLow = 0x0000,
+    .FilterFIFOAssignment =  CAN_FILTER_FIFO0,
+    .FilterBank = 0,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+    .FilterActivation = ENABLE
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -101,12 +130,78 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
+    // TODO: Inplement initialization functions for the controllers
+    rc_controller.Init();
+
+    // TODO: Define filter_config appropriately for CAN filter
+    HAL_CAN_ConfigFilter(&hcan1, &filter_config);
+    HAL_CAN_Start(&hcan1);
+    HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    HAL_TIM_Base_Start_IT(&htim7);
+
+    imu_sensor.Init();
   /* USER CODE END 2 */
 
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();
 
+    const osMutexAttr_t gimbal_mutex_attributes = {
+        .name = "GimbalMutex"
+    };
+    gimbal_mutex_handle = osMutexNew(&gimbal_mutex_attributes);
+
+    const osSemaphoreAttr_t rc_sem_attributes = {
+        .name = "rcSem"
+    };
+    rc_data_ready_semaphore_handle = osSemaphoreNew(1, 0, &rc_sem_attributes);
+
+    const osMessageQueueAttr_t can_rx_queue_attributes = {
+        .name = "canRxQueue"
+    };
+    can_rx_queue_handle = osMessageQueueNew(16, sizeof(uint8_t[sizeof(CAN_RxHeaderTypeDef) + 8]), &can_rx_queue_attributes);
+
+    const osThreadAttr_t imu_task_attributes = {
+        .name = "imuTask",
+        .stack_size = 256,
+        .priority = osPriorityHigh
+    };
+    imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
+
+    const osThreadAttr_t control_task_attributes = {
+        .name = "controlTask",
+        .stack_size = 512,
+        .priority = osPriorityAboveNormal
+    };
+    control_task_handle = osThreadNew(VControlTask, NULL, &control_task_attributes);
+
+    const osThreadAttr_t can_send_task_attributes = {
+        .name = "canSendTask",
+        .stack_size = 256,
+        .priority = osPriorityNormal
+    };
+    can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
+
+    const osThreadAttr_t can_recv_task_attributes = {
+        .name = "canRecvTask",
+        .stack_size = 256,
+        .priority = osPriorityNormal
+    };
+    can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
+
+    const osThreadAttr_t rc_process_task_attributes = {
+        .name = "rcProcessTask",
+        .stack_size = 256,
+        .priority = osPriorityNormal
+    };
+    rc_process_task_handle = osThreadNew(VRcProcessTask, NULL, &rc_process_task_attributes);
+
+    const osThreadAttr_t iwdg_task_attributes = {
+        .name = "iwdgTask",
+        .stack_size = 128,
+        .priority = osPriorityLow
+    };
+    iwdg_task_handle = osThreadNew(VIwdgTask, NULL, &iwdg_task_attributes);
   /* Start scheduler */
   osKernelStart();
 
@@ -181,19 +276,19 @@ void SystemClock_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-//
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM6)
-  {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-//
-  /* USER CODE END Callback 1 */
-}
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// {
+//   /* USER CODE BEGIN Callback 0 */
+// //
+//   /* USER CODE END Callback 0 */
+//   if (htim->Instance == TIM6)
+//   {
+//     HAL_IncTick();
+//   }
+//   /* USER CODE BEGIN Callback 1 */
+// //
+//   /* USER CODE END Callback 1 */
+// }
 
 /**
   * @brief  This function is executed in case of error occurrence.
