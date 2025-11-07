@@ -130,7 +130,7 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
-    // TODO: Inplement initialization functions for the controllers
+    // TODO: Implement initialization functions for the controllers
     rc_controller.Init();
 
     // TODO: Define filter_config appropriately for CAN filter
@@ -173,7 +173,7 @@ int main(void)
         .stack_size = 512,
         .priority = osPriorityAboveNormal
     };
-    control_task_handle = osThreadNew(VControlTask, NULL, &control_task_attributes);
+    control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
 
     const osThreadAttr_t can_send_task_attributes = {
         .name = "canSendTask",
