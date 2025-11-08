@@ -48,8 +48,6 @@ add_executable(${CMAKE_PROJECT_NAME}
         UserCode/Src/Object/Gimbal.cpp
         UserCode/Src/RTOS/rtos.cpp
         UserCode/Src/RTOS/callback.cpp
-        UserCode/Inc/Object/ControlTask.h
-        UserCode/Src/ControlTask.cpp
 )
 
 # Add STM32CubeMX generated sources
@@ -70,6 +68,10 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
         UserCode/Inc/RTOS
+        UserCode/Inc/Control
+        UserCode/Inc/Device
+        UserCode/Inc/HAL
+        UserCode/Inc/Object
 )
 
 # Add project symbols (macros)

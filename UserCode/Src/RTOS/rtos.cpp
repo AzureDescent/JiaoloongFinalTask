@@ -5,6 +5,7 @@
 #include "string.h"
 #include "can.h"
 #include "stm32f4xx_hal_can.h"
+#include "iwdg.h"
 
 void VImuTask(void* argument)
 {
@@ -16,7 +17,7 @@ void VImuTask(void* argument)
 
         imu_sensor.update_attitude();
 
-        // TODO: Sync
+        // TODO: Sync with Control Task if necessary
 
         osDelayUntil(tick += 2);
     }
@@ -32,7 +33,7 @@ void VRcProcessTask(void* argument)
 
         if (rc_controller.is_offline())
         {
-            gimbal_controller.set_mode(GIMBAL_MODE_OFF);
+            gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
         }
     }
 }
@@ -41,7 +42,7 @@ void VCanRecvTask(void* argument)
 {
     uint8_t queue_message[sizeof(CAN_RxHeaderTypeDef) + 8];
     CAN_RxHeaderTypeDef rx_header;
-    uint16_t rx_data[8];
+    uint8_t rx_data[8];
 
     for (;;)
     {
@@ -52,7 +53,7 @@ void VCanRecvTask(void* argument)
 
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
-        gimbal_controller.update_motor_feedback(rx_header.StdId, rx_data);
+        gimbal_controller.UpdateMotorFeedback(rx_header.StdId, rx_data);
 
         osMutexRelease(gimbal_mutex_handle);
     }
@@ -67,15 +68,15 @@ void VControlTask(void* argument)
 
         IMU::AttitudeData imu_attitude = imu_sensor.get_attitude();
 
-        Gimbal::Mode mode = gimbal_controller.determine_mode(rc_input.switch_right);
+        Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
 
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
-        gimbal_controller.set_mode(mode);
-        gimbal_controller.set_targets(rc_input.yaw_stick, rc_input.pitch_stick);
-        gimbal_controller.set_imu_feedback(imu_attitude);
+        gimbal_controller.SetMode(mode);
+        gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
+        gimbal_controller.SetImuFeedback(imu_attitude);
 
-        gimbal_controller.run_control_loop();
+        gimbal_controller.RunControlLoop();
 
         osMutexRelease(gimbal_mutex_handle);
 
@@ -94,8 +95,8 @@ void VCanSendTask(void* argument)
     {
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
-        int16_t yaw_current = gimbal_controller.get_yaw_motor_current();
-        int16_t pitch_current = gimbal_controller.get_pitch_motor_current();
+        int16_t yaw_current = gimbal_controller.GetYawMotorCurrent();
+        int16_t pitch_current = gimbal_controller.GetPitchMotorCurrent();
 
         osMutexRelease(gimbal_mutex_handle);
 

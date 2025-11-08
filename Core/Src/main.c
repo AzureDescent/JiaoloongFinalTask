@@ -133,8 +133,11 @@ int main(void)
     // TODO: Implement initialization functions for the controllers
     rc_controller.Init();
 
+    // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
+
     // TODO: Define filter_config appropriately for CAN filter
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
+    // TODO: Verify the sequence of starting CAN and activating notifications
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_TIM_Base_Start_IT(&htim7);

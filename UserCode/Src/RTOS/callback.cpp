@@ -6,6 +6,7 @@
 #include "cmsis_os2.h"
 #include "usart.h"
 #include "string.h"
+#include "rtos.h"
 #include "dma.h"
 // FIXME: resolve the inclusion relationship of header files after the project is stable
 
@@ -16,8 +17,10 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
         // TODO: Receive data processing in Class Remote Control
         // URL: https://github.com/AzureDescent/C-Type_Board/blob/RemoteControl/Core/Src/callback.cpp
 
-        // TODO: Define rcDataReadySemaphoreHandle appropriately in RTOS setup
-        osSemaphoreRelease(rcDataReadySemaphoreHandle);
+        // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
+
+        // TODO: Define rc_data_ready_semaphore_handle appropriately in RTOS setup
+        osSemaphoreRelease(rc_data_ready_semaphore_handle);
     }
 }
 
@@ -35,8 +38,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
             memcpy(queue_message, &rx_header, sizeof(CAN_RxHeaderTypeDef));
             memcpy(queue_message + sizeof(CAN_RxHeaderTypeDef), rx_data, 8);
 
-            // TODO: Define canRxQueueHandle appropriately in RTOS setup
-            osMessageQueuePut(canRxQueueHandle, &queue_message, 0, 0);
+            // TODO: Define can_rx_queue_handle appropriately in RTOS setup
+            osMessageQueuePut(can_rx_queue_handle, &queue_message, 0, 0);
         }
     }
 }

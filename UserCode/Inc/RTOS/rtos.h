@@ -5,6 +5,7 @@
 #ifndef FINALTASK_RTOS_H
 #define FINALTASK_RTOS_H
 #include "cmsis_os2.h"
+#include "Gimbal.h"
 
 // TODO: Add necessary for RTOS setup here
 
