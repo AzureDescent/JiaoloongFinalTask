@@ -13,10 +13,10 @@ extern "C"
 #endif
 
 // chip selection
-void BmI088AccelNsL(void);
-void BmI088AccelNsH(void);
-void BmI088GyroNsL(void);
-void BmI088GyroNsH(void);
+void Bmi088AccelNsL(void);
+void Bmi088AccelNsH(void);
+void Bmi088GyroNsL(void);
+void Bmi088GyroNsH(void);
 
 // bmi088 init
 void Bmi088Init(void);
