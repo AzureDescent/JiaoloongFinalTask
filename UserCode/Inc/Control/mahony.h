@@ -21,6 +21,14 @@ public:
     // Mahony算法，传感器数据融合，四元数更新
     void Update(float q[4], float ws[3], float as[3]);
 
+    static void Matrix33fTrans(float R[3][3], float RT[3][3]);
+    static void Matrix33fMultVector3f(float matrix[3][3], float vector[3], float result[3]);
+    static void Vector3fCross(float a[3], float b[3], float result[3]);
+    static float Vector3fNorm(float vector[3]);
+    static void Vector3fAdd(float a[3], float b[3], float result[3]);
+    static void Vector3fSub(float a[3], float b[3], float result[3]);
+    static void Vector4fUnit(float q[4], float result[4]);
+
 public:
     float q_[4]; // quaternion
     float ws_[3], as_[3]; // gyro/acceleration(sensor)
@@ -37,7 +45,7 @@ private:
     float dt_; // update time step;
     float kg_, km_; // data fusion coefficient
 
-    const float _gw_[3] = { 0, 0, gravity_accel }; // -g(world)
+    float _gw_[] = { 0, 0, gravity_accel }; // -g(world)
     const float g_threshold_; // threshold of g offset
 };
 

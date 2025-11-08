@@ -7,7 +7,7 @@ void IMU::Init(EulerAngle_t euler_deg_init)
 {
     // TODO: Implement other initialization steps
 
-    uint8_t accel_range_setting = 0x01;
+    constexpr uint8_t accel_range_setting = 0x01;
     Bmi088AccelWriteSingleReg(BMI088_ACC_RANGE_REG, accel_range_setting);
 
     switch (accel_range_setting)
@@ -19,7 +19,7 @@ void IMU::Init(EulerAngle_t euler_deg_init)
         default: accel_scale_factor_ = 6.0f; break;;
     }
 
-    uint8_t gyro_range_setting = 0x00;
+    constexpr uint8_t gyro_range_setting = 0x00;
     Bmi088AccelWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
 
     switch (gyro_range_setting)
