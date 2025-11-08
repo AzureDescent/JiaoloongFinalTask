@@ -7,8 +7,6 @@
 #include "cmsis_os2.h"
 #include "Gimbal.h"
 
-// TODO: Add necessary for RTOS setup here
-
 // TODO: Add and FIX external declarations
 extern Gimbal gimbal_controller;
 extern IMU imu_sensor;

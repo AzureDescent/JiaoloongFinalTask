@@ -6,6 +6,12 @@
 #define FINALTASK_IMU_H
 
 #include "mahony.h"
+#include "bmi088.h"
+
+#define BMI088_ACC_RANGE_REG        0x41
+#define BMI088_ACC_X_LSB_REG        0x12
+#define BMI088_GYRO_RANGE_REG       0x0F
+#define BMI088_GYRO_X_LSB_REG       0x02
 
 // 欧拉角
 typedef struct EulerAngle
@@ -48,7 +54,11 @@ public:
     // 利用线性互补滤波算法，上一时刻姿态角，加速度与角速度更新当前姿态角
     void UpdateAttitude();
 
-public:
+    // TODO: Verify the return type of GetAttitude
+    void GetAttitude();
+
+    // AttitudeData GetAttitudeData();
+
     // IMU 原始数据
     ImuRawData_t raw_data_;
 
@@ -73,6 +83,9 @@ private:
     float gyro_bias_[3];
     // Mahony解算
     Mahony mahony_;
+
+    float accel_scale_factor_;
+    float gyro_scale_factor_;
 };
 
 #endif //FINALTASK_IMU_H

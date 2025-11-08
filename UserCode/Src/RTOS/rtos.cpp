@@ -67,7 +67,7 @@ void VControlTask(void* argument)
         RemoteControl::ControlData rc_input = rc_controller.get_control_data();
 
         // TODO: Implement getting IMU attitude data
-        IMU::AttitudeData imu_attitude = imu_sensor.get_attitude();
+        IMU::AttitudeData imu_attitude = imu_sensor.GetAttitude();
 
         Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
 

@@ -1,3 +1,59 @@
 //
 // Created by DrownFish on 2025/11/4.
 //
+#include "imu.h"
+
+void IMU::Init(EulerAngle_t euler_deg_init)
+{
+    // TODO: Implement other initialization steps
+
+    uint8_t accel_range_setting = 0x01;
+    Bmi088AccelWriteSingleReg(BMI088_ACC_RANGE_REG, accel_range_setting);
+
+    switch (accel_range_setting)
+    {
+        case 0: accel_scale_factor_ = 3.0f; break;
+        case 1: accel_scale_factor_ = 6.0f; break;
+        case 2: accel_scale_factor_ = 12.0f; break;
+        case 3: accel_scale_factor_ = 24.0f; break;
+        default: accel_scale_factor_ = 6.0f; break;;
+    }
+
+    uint8_t gyro_range_setting = 0x00;
+    Bmi088AccelWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
+
+    switch (gyro_range_setting)
+    {
+        case 0: gyro_scale_factor_ = 2000.0f; break;
+        case 1: gyro_scale_factor_ = 1000.0f; break;
+        case 2: gyro_scale_factor_ = 500.0f; break;
+        case 3: gyro_scale_factor_ = 250.0f; break;
+        case 4: gyro_scale_factor_ = 125.0f; break;
+        default: gyro_scale_factor_ = 2000.0f; break;;
+    }
+}
+
+void IMU::ReadSensor()
+{
+    int16_t raw_accel_data[3];
+    Bmi088AccelReadReg(BMI088_ACC_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_accel_data), 6);
+    raw_data_.accel[0] = static_cast<float>(raw_accel_data[0]) / 32768.0f * accel_scale_factor_;
+    raw_data_.accel[1] = static_cast<float>(raw_accel_data[1]) / 32768.0f * accel_scale_factor_;
+    raw_data_.accel[2] = static_cast<float>(raw_accel_data[2]) / 32768.0f * accel_scale_factor_;
+
+    int16_t raw_gyro_data[3];
+    Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
+    raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
+    raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
+    raw_data_.gyro[2] = static_cast<float>(raw_gyro_data[2]) / 32768.0f * gyro_scale_factor_;
+}
+
+void IMU::UpdateAttitude()
+{
+
+}
+
+void IMU::GetAttitude()
+{
+
+}
