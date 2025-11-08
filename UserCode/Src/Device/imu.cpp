@@ -4,6 +4,7 @@
 #include "imu.h"
 #include "string.h"
 #include "cmath"
+#include "stm32f4xx_hal.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -23,7 +24,26 @@ IMU::IMU(const float& dt,
 
 void IMU::Init(EulerAngle_t euler_deg_init)
 {
-    // TODO: Implement other initialization steps
+    Bmi088Init();
+    HAL_Delay(50);
+
+    euler_deg_ = euler_deg_init;
+
+    euler_rad_.yaw = euler_deg_init.yaw * M_PI / 180.0f;
+    euler_rad_.pitch = euler_deg_init.pitch * M_PI / 180.0f;
+    euler_rad_.roll = euler_deg_init.roll * M_PI / 180.0f;
+
+    float cy = cosf(euler_rad_.yaw * 0.5f);
+    float sy = sinf(euler_rad_.yaw * 0.5f);
+    float cp = cosf(euler_rad_.pitch * 0.5f);
+    float sp = sinf(euler_rad_.pitch * 0.5f);
+    float cr = cosf(euler_rad_.roll * 0.5f);
+    float sr = sinf(euler_rad_.roll * 0.5f);
+
+    q_[0] = cr * cp * cy + sr * sp * sy; // w
+    q_[1] = sr * cp * cy - cr * sp * sy; // x
+    q_[2] = cr * sp * cy + sr * cp * sy; // y
+    q_[3] = cr * cp * sy - sr * sp * cy; // z
 
     constexpr uint8_t accel_range_setting = 0x01;
     Bmi088AccelWriteSingleReg(BMI088_ACC_RANGE_REG, accel_range_setting);
@@ -144,7 +164,7 @@ void IMU::UpdateAttitude()
     }
 }
 
-void IMU::GetAttitude()
+EulerAngle_t IMU::GetAttitude() const
 {
-
+    return euler_deg_;
 }

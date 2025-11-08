@@ -54,10 +54,7 @@ public:
     // 利用线性互补滤波算法，上一时刻姿态角，加速度与角速度更新当前姿态角
     void UpdateAttitude();
 
-    // TODO: Verify the return type of GetAttitude
-    void GetAttitude();
-
-    // TODO: AttitudeData GetAttitudeData();
+    EulerAngle_t GetAttitude() const;
 
     // IMU 原始数据
     ImuRawData_t raw_data_;

@@ -23,7 +23,7 @@ public:
     // TODO: Verify the parameter types for SetPIDTargets
     void SetPIDTargets(/*    */);
     // TODO: Verify the parameter types for SetImuFeedback
-    void SetImuFeedback(/*    */);
+    void SetImuFeedback(EulerAngle_t imu_attitude);
     // TODO: Verify the parameter type for DetermineMode
     Mode DetermineMode(/*    */);
 

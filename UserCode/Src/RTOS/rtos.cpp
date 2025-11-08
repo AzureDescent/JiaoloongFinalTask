@@ -12,7 +12,6 @@ void VImuTask(void* argument)
     uint32_t tick = osKernelGetTickCount();
     for (;;)
     {
-        // TODO: Implement IMU data reading and attitude updating
         imu_sensor.ReadSensor();
 
         imu_sensor.UpdateAttitude();
@@ -66,8 +65,7 @@ void VControlTask(void* argument)
     {
         RemoteControl::ControlData rc_input = rc_controller.get_control_data();
 
-        // TODO: Implement getting IMU attitude data
-        IMU::AttitudeData imu_attitude = imu_sensor.GetAttitude();
+        EulerAngle_t imu_attitude = imu_sensor.GetAttitude();
 
         Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
 
