@@ -131,7 +131,6 @@ void Mahony::Vector4fUnit(float q[4], float result[4])
 
     if (norm > 0.0001f)
     {
-        // 避免除以零
         for (int i = 0; i < 4; i++)
         {
             result[i] = q[i] / norm;
@@ -139,7 +138,6 @@ void Mahony::Vector4fUnit(float q[4], float result[4])
     }
     else
     {
-        // 如果模长太小，设置为单位四元数
         result[0] = 1.0f;
         result[1] = 0.0f;
         result[2] = 0.0f;

@@ -28,11 +28,11 @@ extern osSemaphoreId_t imu_data_ready_semaphore_handle;
 extern osMutexId_t gimbal_mutex_handle;
 
 void VControlTask(void *argument);
-void VImuTask(void *argument);
-void VCanSendTask(void *argument);
-void VCanRecvTask(void *argument);
-void VRcProcessTask(void *argument);
-void VIwdgTask(void *argument);
+[[noreturn]] void VImuTask(void *argument);
+[[noreturn]] void VCanSendTask(void *argument);
+[[noreturn]] void VCanRecvTask(void *argument);
+[[noreturn]] void VRcProcessTask(void *argument);
+[[noreturn]] void VIwdgTask(void *argument);
 
 
 #endif //FINALTASK_RTOS_H

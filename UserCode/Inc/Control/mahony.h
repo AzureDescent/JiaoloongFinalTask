@@ -45,7 +45,7 @@ private:
     float dt_; // update time step;
     float kg_, km_; // data fusion coefficient
 
-    float _gw_[] = { 0, 0, gravity_accel }; // -g(world)
+    float _gw_[3] = { 0, 0, gravity_accel }; // -g(world)
     const float g_threshold_; // threshold of g offset
 };
 

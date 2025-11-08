@@ -50,10 +50,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-Gimbal gimbal_controller;
-IMU imu_sensor;
-RemoteControl rc_controller;
-
 osThreadId_t control_task_handle;
 osThreadId_t imu_task_handle;
 osThreadId_t can_send_task_handle;

@@ -7,7 +7,18 @@
 #include "stm32f4xx_hal_can.h"
 #include "iwdg.h"
 
-void VImuTask(void* argument)
+constexpr float dt = 0.001f;
+constexpr float kg = 0.1f;
+constexpr float g_threshold = 0.1f;
+// TODO: Set correct gyro bias
+constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
+constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+
+Gimbal gimbal_controller;
+IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
+RemoteControl rc_controller;
+
+[[noreturn]] void VImuTask(void* argument)
 {
     uint32_t tick = osKernelGetTickCount();
     for (;;)
@@ -22,7 +33,7 @@ void VImuTask(void* argument)
     }
 }
 
-void VRcProcessTask(void* argument)
+[[noreturn]] void VRcProcessTask(void* argument)
 {
     for (;;)
     {
@@ -37,7 +48,7 @@ void VRcProcessTask(void* argument)
     }
 }
 
-void VCanRecvTask(void* argument)
+[[noreturn]] void VCanRecvTask(void* argument)
 {
     uint8_t queue_message[sizeof(CAN_RxHeaderTypeDef) + 8];
     CAN_RxHeaderTypeDef rx_header;
@@ -83,7 +94,7 @@ void VControlTask(void* argument)
     }
 }
 
-void VCanSendTask(void* argument)
+[[noreturn]] void VCanSendTask(void* argument)
 {
     uint32_t tick = osKernelGetTickCount();
     CAN_TxHeaderTypeDef tx_header;
@@ -107,7 +118,7 @@ void VCanSendTask(void* argument)
     }
 }
 
-void VIwdgTask(void* argument)
+[[noreturn]] void VIwdgTask(void* argument)
 {
     for (;;)
     {
