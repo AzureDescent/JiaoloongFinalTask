@@ -2,6 +2,24 @@
 // Created by DrownFish on 2025/11/4.
 //
 #include "imu.h"
+#include "string.h"
+#include "cmath"
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
+
+
+IMU::IMU(const float& dt,
+         const float& kg,
+         const float& g_threshold,
+         const float R_imu[3][3],
+         const float gyro_bias[3]):
+    mahony_(dt, kg, g_threshold)
+{
+    memcpy(R_imu_, R_imu, 9 * sizeof(float));
+    memcpy(gyro_bias_, gyro_bias, 3 * sizeof(float));
+}
 
 void IMU::Init(EulerAngle_t euler_deg_init)
 {
@@ -12,24 +30,46 @@ void IMU::Init(EulerAngle_t euler_deg_init)
 
     switch (accel_range_setting)
     {
-        case 0: accel_scale_factor_ = 3.0f; break;
-        case 1: accel_scale_factor_ = 6.0f; break;
-        case 2: accel_scale_factor_ = 12.0f; break;
-        case 3: accel_scale_factor_ = 24.0f; break;
-        default: accel_scale_factor_ = 6.0f; break;;
+        case 0:
+            accel_scale_factor_ = 3.0f;
+            break;
+        case 1:
+            accel_scale_factor_ = 6.0f;
+            break;
+        case 2:
+            accel_scale_factor_ = 12.0f;
+            break;
+        case 3:
+            accel_scale_factor_ = 24.0f;
+            break;
+        default:
+            accel_scale_factor_ = 6.0f;
+            break;;
     }
 
     constexpr uint8_t gyro_range_setting = 0x00;
-    Bmi088AccelWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
+    Bmi088GyroWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
 
     switch (gyro_range_setting)
     {
-        case 0: gyro_scale_factor_ = 2000.0f; break;
-        case 1: gyro_scale_factor_ = 1000.0f; break;
-        case 2: gyro_scale_factor_ = 500.0f; break;
-        case 3: gyro_scale_factor_ = 250.0f; break;
-        case 4: gyro_scale_factor_ = 125.0f; break;
-        default: gyro_scale_factor_ = 2000.0f; break;;
+        case 0:
+            gyro_scale_factor_ = 2000.0f;
+            break;
+        case 1:
+            gyro_scale_factor_ = 1000.0f;
+            break;
+        case 2:
+            gyro_scale_factor_ = 500.0f;
+            break;
+        case 3:
+            gyro_scale_factor_ = 250.0f;
+            break;
+        case 4:
+            gyro_scale_factor_ = 125.0f;
+            break;
+        default:
+            gyro_scale_factor_ = 2000.0f;
+            break;;
     }
 }
 
@@ -50,7 +90,58 @@ void IMU::ReadSensor()
 
 void IMU::UpdateAttitude()
 {
+    float temp_gyro_dps[3];
+    float temp_accel_g[3];
+    float temp_accel_m_s2[3];
 
+    for (int i = 0; i < 3; i++)
+    {
+        temp_gyro_dps[i] = raw_data_.gyro[i] - gyro_bias_[i];
+        temp_accel_g[i] = raw_data_.accel[i];
+    }
+
+    Mahony::Matrix33fMultVector3f(R_imu_, temp_gyro_dps, gyro_sensor_dps_);
+
+    for (int i = 0; i < 3; i++)
+    {
+        gyro_sensor_[i] = gyro_sensor_dps_[i] * M_PI / 180.0f;
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        temp_accel_m_s2[i] = temp_accel_g[i] * gravity_accel;
+    }
+
+    Mahony::Matrix33fMultVector3f(R_imu_, temp_accel_m_s2, accel_sensor_);
+
+    mahony_.Update(q_, gyro_sensor_, accel_sensor_);
+
+    float sin_pitch = 2.0f * (q_[0] * q_[2] - q_[1] * q_[3]);
+
+    if (fabsf(sin_pitch) >= 0.9999f)
+    {
+        euler_rad_.pitch = copysignf(M_PI / 2.0f, sin_pitch);
+        euler_rad_.roll = 0.0f;
+        euler_rad_.yaw = atan2f(-2.0f * (q_[1] * q_[3] - q_[0] * q_[2]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[3] * q_[3]));
+    }
+    else
+    {
+        euler_rad_.pitch = asinf(sin_pitch);
+        euler_rad_.roll = atan2f(2.0f * (q_[0] * q_[1] + q_[2] * q_[3]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[2] * q_[2]));
+        euler_rad_.yaw = atan2f(2.0f * (q_[0] * q_[3] + q_[1] * q_[2]), 1.0f - 2.0f * (q_[2] * q_[2] + q_[3] * q_[3]));
+    }
+
+    euler_deg_.roll = euler_rad_.roll * (180.0f / M_PI);
+    euler_deg_.pitch = euler_rad_.pitch * (180.0f / M_PI);
+    euler_deg_.yaw = euler_rad_.yaw * (180.0f / M_PI);
+
+    memcpy(gyro_world_, mahony_.ww_, 3 * sizeof(float));
+    memcpy(accel_world_, mahony_.aw_, 3 * sizeof(float));
+
+    for (int i = 0; i < 3; i++)
+    {
+        gyro_world_dps_[i] = gyro_world_[i] * (180.0f / M_PI);
+    }
 }
 
 void IMU::GetAttitude()

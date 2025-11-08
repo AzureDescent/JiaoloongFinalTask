@@ -57,7 +57,7 @@ public:
     // TODO: Verify the return type of GetAttitude
     void GetAttitude();
 
-    // AttitudeData GetAttitudeData();
+    // TODO: AttitudeData GetAttitudeData();
 
     // IMU 原始数据
     ImuRawData_t raw_data_;

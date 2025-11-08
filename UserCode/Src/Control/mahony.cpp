@@ -5,7 +5,6 @@
 #include "string.h"
 #include "cmath"
 
-// TODO: Resolve matrix.h dependency
 // Mahony algorithm, sensor data fusion, update quaternion
 // Mahony算法，传感器数据融合，四元数更新
 void Mahony::Update(float q[4], float ws[3], float as[3])
