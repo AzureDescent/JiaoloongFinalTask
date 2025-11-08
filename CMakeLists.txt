@@ -48,6 +48,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         UserCode/Src/Object/Gimbal.cpp
         UserCode/Src/RTOS/rtos.cpp
         UserCode/Src/RTOS/callback.cpp
+        UserCode/Inc/Control/mahony.h
+        UserCode/Src/Control/mahony.cpp
 )
 
 # Add STM32CubeMX generated sources

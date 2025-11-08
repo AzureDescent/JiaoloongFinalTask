@@ -13,9 +13,9 @@ void VImuTask(void* argument)
     for (;;)
     {
         // TODO: Implement IMU data reading and attitude updating
-        imu_sensor.readData();
+        imu_sensor.ReadSensor();
 
-        imu_sensor.update_attitude();
+        imu_sensor.UpdateAttitude();
 
         // TODO: Sync with Control Task if necessary
 
@@ -66,6 +66,7 @@ void VControlTask(void* argument)
     {
         RemoteControl::ControlData rc_input = rc_controller.get_control_data();
 
+        // TODO: Implement getting IMU attitude data
         IMU::AttitudeData imu_attitude = imu_sensor.get_attitude();
 
         Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
@@ -101,7 +102,6 @@ void VCanSendTask(void* argument)
         osMutexRelease(gimbal_mutex_handle);
 
         // TODO: Package CAN datas for motor currents
-
 
         HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
 

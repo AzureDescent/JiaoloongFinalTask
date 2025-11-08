@@ -5,6 +5,8 @@
 #ifndef FINALTASK_GIMBAL_H
 #define FINALTASK_GIMBAL_H
 
+#include "imu.h"
+
 class Gimbal
 {
 public:
@@ -30,6 +32,7 @@ public:
     void UpdateMotorFeedback(uint16_t motor_id, uint8_t* data);
     int16_t GetYawMotorCurrent();
     int16_t GetPitchMotorCurrent();
+
 private:
     Mode current_mode;
 };
