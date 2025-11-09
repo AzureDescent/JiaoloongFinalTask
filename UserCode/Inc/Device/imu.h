@@ -20,10 +20,12 @@ typedef struct EulerAngle
     float pitch;
     float roll;
 
-    explicit EulerAngle(float y = 0, float p = 0, float r = 0):
+#ifdef __cplusplus
+    EulerAngle(float y = 0, float p = 0, float r = 0):
         yaw(y),
         pitch(p),
         roll(r) {}
+#endif
 } EulerAngle_t;
 
 // 传感器原始数据
@@ -33,7 +35,7 @@ typedef struct ImuRawData
     float accel[3];
     float temp[1];
 } ImuRawData_t;
-
+#ifdef __cplusplus
 // TODO: Sync with mahony.h and main.c
 class IMU
 {
@@ -84,5 +86,15 @@ private:
     float accel_scale_factor_;
     float gyro_scale_factor_;
 };
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+    #endif
+
+    void IMU_Init_Wrapper();
+    #ifdef __cplusplus
+}
+#endif
 
 #endif //FINALTASK_IMU_H

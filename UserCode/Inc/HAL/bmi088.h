@@ -5,7 +5,8 @@
 #ifndef FINALTASK_BMI088_H
 #define FINALTASK_BMI088_H
 
-#include "cstdint"
+#include <stdint.h>
+#include "stm32f4xx_hal.h"
 
 #ifdef __cplusplus
 extern "C"

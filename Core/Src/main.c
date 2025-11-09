@@ -30,6 +30,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "rtos.h"
+#include "imu.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -123,11 +124,11 @@ int main(void)
   MX_CAN1_Init();
   MX_TIM7_Init();
   MX_USART3_UART_Init();
-  MX_IWDG_Init();
+  // MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
     // TODO: Implement initialization functions for the controllers
-    rc_controller.Init();
+    // rc_controller.Init();
 
     // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
@@ -138,7 +139,7 @@ int main(void)
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_TIM_Base_Start_IT(&htim7);
 
-    imu_sensor.Init();
+    IMU_Init_Wrapper();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -167,40 +168,40 @@ int main(void)
     };
     imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
 
-    const osThreadAttr_t control_task_attributes = {
-        .name = "controlTask",
-        .stack_size = 512,
-        .priority = osPriorityAboveNormal
-    };
-    control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
-
-    const osThreadAttr_t can_send_task_attributes = {
-        .name = "canSendTask",
-        .stack_size = 256,
-        .priority = osPriorityNormal
-    };
-    can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
-
-    const osThreadAttr_t can_recv_task_attributes = {
-        .name = "canRecvTask",
-        .stack_size = 256,
-        .priority = osPriorityNormal
-    };
-    can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
-
-    const osThreadAttr_t rc_process_task_attributes = {
-        .name = "rcProcessTask",
-        .stack_size = 256,
-        .priority = osPriorityNormal
-    };
-    rc_process_task_handle = osThreadNew(VRcProcessTask, NULL, &rc_process_task_attributes);
-
-    const osThreadAttr_t iwdg_task_attributes = {
-        .name = "iwdgTask",
-        .stack_size = 128,
-        .priority = osPriorityLow
-    };
-    iwdg_task_handle = osThreadNew(VIwdgTask, NULL, &iwdg_task_attributes);
+    // const osThreadAttr_t control_task_attributes = {
+    //     .name = "controlTask",
+    //     .stack_size = 512,
+    //     .priority = osPriorityAboveNormal
+    // };
+    // control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
+    //
+    // const osThreadAttr_t can_send_task_attributes = {
+    //     .name = "canSendTask",
+    //     .stack_size = 256,
+    //     .priority = osPriorityNormal
+    // };
+    // can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
+    //
+    // const osThreadAttr_t can_recv_task_attributes = {
+    //     .name = "canRecvTask",
+    //     .stack_size = 256,
+    //     .priority = osPriorityNormal
+    // };
+    // can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
+    //
+    // const osThreadAttr_t rc_process_task_attributes = {
+    //     .name = "rcProcessTask",
+    //     .stack_size = 256,
+    //     .priority = osPriorityNormal
+    // };
+    // rc_process_task_handle = osThreadNew(VRcProcessTask, NULL, &rc_process_task_attributes);
+    //
+    // const osThreadAttr_t iwdg_task_attributes = {
+    //     .name = "iwdgTask",
+    //     .stack_size = 128,
+    //     .priority = osPriorityLow
+    // };
+    // iwdg_task_handle = osThreadNew(VIwdgTask, NULL, &iwdg_task_attributes);
   /* Start scheduler */
   osKernelStart();
 

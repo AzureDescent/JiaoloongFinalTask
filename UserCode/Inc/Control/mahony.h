@@ -5,8 +5,9 @@
 #ifndef FINALTASK_MAHONY_H
 #define FINALTASK_MAHONY_H
 
-constexpr float gravity_accel = 9.794f;
+const float gravity_accel = 9.794f;
 
+#ifdef __cplusplus
 class Mahony
 {
 public:
@@ -29,7 +30,6 @@ public:
     static void Vector3fSub(float a[3], float b[3], float result[3]);
     static void Vector4fUnit(float q[4], float result[4]);
 
-public:
     float q_[4]; // quaternion
     float ws_[3], as_[3]; // gyro/acceleration(sensor)
     float R_[3][3]; // rotate matrix
@@ -48,5 +48,6 @@ private:
     float _gw_[3] = { 0, 0, gravity_accel }; // -g(world)
     const float g_threshold_; // threshold of g offset
 };
+#endif
 
 #endif //FINALTASK_MAHONY_H
