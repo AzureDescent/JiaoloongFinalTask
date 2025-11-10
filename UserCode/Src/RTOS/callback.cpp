@@ -8,6 +8,9 @@
 #include "string.h"
 #include "rtos.h"
 #include "dma.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
 // FIXME: resolve the inclusion relationship of header files after the project is stable
 
 // 声明外部 HAL 库函数（如果需要的话，但通常 tim.h 中已包含）

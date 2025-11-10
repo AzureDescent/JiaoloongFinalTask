@@ -134,6 +134,19 @@ void IMU::UpdateAttitude()
 
     Mahony::Matrix33fMultVector3f(R_imu_, temp_accel_m_s2, accel_sensor_);
 
+    // 检查加速度计的模长是否接近于 0
+    float accel_norm = sqrtf(accel_sensor_[0] * accel_sensor_[0] +
+                             accel_sensor_[1] * accel_sensor_[1] +
+                             accel_sensor_[2] * accel_sensor_[2]);
+
+    // 如果模长为 0 (或非常小)，则不更新姿态，以防止除零 (NaN)
+    if (accel_norm < 0.001f)
+    {
+        // (可选) 在这里您可以设置一个错误标志
+        // 保持上一次的姿态不变，仅返回
+        return;
+    }
+
     mahony_.Update(q_, gyro_sensor_, accel_sensor_);
 
     float sin_pitch = 2.0f * (q_[0] * q_[2] - q_[1] * q_[3]);

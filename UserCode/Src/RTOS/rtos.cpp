@@ -39,10 +39,4 @@ extern "C" void IMU_Init_Wrapper()
     // C 文件中无法使用 C++ 构造函数，因此手动构造一个 C-compatible 的初始化角度
     EulerAngle_t init_angle(0, 0, 0);
     imu_sensor.Init(init_angle);
-
-    // === START: 强制调用 ID 检查函数 ===
-    // 在 Init 之后调用，确保 SPI 已初始化
-    g_accel_id = Bmi088CheckAccelId();
-    g_gyro_id = Bmi088CheckGyroId();
-    // === END: 强制调用 ID 检查函数 ===
 }
