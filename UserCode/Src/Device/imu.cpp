@@ -10,7 +10,7 @@
 #define M_PI 3.14159265358979323846f
 #endif
 
-uint32_t debugger;
+volatile uint32_t debugger;
 
 IMU::IMU(const float& dt,
          const float& kg,
@@ -26,7 +26,7 @@ IMU::IMU(const float& dt,
 void IMU::Init(EulerAngle_t euler_deg_init)
 {
     Bmi088Init();
-    accel_id_ = Bmi088AccelReadID();
+    spi_status_ = Bmi088AccelReadID(&accel_id_);
 
     HAL_Delay(50);
 

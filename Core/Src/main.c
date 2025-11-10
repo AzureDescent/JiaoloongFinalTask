@@ -124,9 +124,11 @@ int main(void)
   MX_CAN1_Init();
   MX_TIM7_Init();
   MX_USART3_UART_Init();
-  // MX_IWDG_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
+
+    HAL_Delay(50);
     // TODO: Implement initialization functions for the controllers
     // rc_controller.Init();
 
@@ -134,7 +136,6 @@ int main(void)
 
     // TODO: Define filter_config appropriately for CAN filter
     // TODO: Verify the sequence of starting CAN and activating notifications
-    HAL_TIM_Base_Start_IT(&htim7);
 
     IMU_Init_Wrapper();
   /* USER CODE END 2 */
@@ -217,19 +218,19 @@ void SystemClock_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-// {
-//   /* USER CODE BEGIN Callback 0 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
 // //
-//   /* USER CODE END Callback 0 */
-//   if (htim->Instance == TIM6)
-//   {
-//     HAL_IncTick();
-//   }
-//   /* USER CODE BEGIN Callback 1 */
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
 // //
-//   /* USER CODE END Callback 1 */
-// }
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

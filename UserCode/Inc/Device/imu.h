@@ -86,6 +86,7 @@ private:
     float accel_scale_factor_;
     float gyro_scale_factor_;
     uint8_t accel_id_;
+    HAL_StatusTypeDef spi_status_;
 };
 #endif
 
