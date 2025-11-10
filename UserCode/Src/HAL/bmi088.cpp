@@ -152,7 +152,7 @@ void Bmi088GyroReadReg(const uint8_t reg, uint8_t* return_data, const uint8_t le
     Bmi088GyroNsL();
 
     Bmi088WriteByte(reg | 0x80);
-    Bmi088WriteByte(dummy_tx);
+    // Bmi088WriteByte(dummy_tx);
 
     Bmi088ReadByte(return_data, length);
 

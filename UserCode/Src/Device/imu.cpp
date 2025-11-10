@@ -151,7 +151,7 @@ void IMU::UpdateAttitude()
 
     float sin_pitch = 2.0f * (q_[0] * q_[2] - q_[1] * q_[3]);
 
-    if (std::isnan(sin_pitch))
+    if (std::isnan(sin_pitch) || std::isinf(sin_pitch))
     {
         // 如果 q_ 已经损坏，立即停止，防止 NaN 传播
         // 这也暗示 mahony.cpp 内部的归一化需要修复
