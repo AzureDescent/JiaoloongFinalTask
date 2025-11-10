@@ -7,12 +7,19 @@
 #include "cmsis_os2.h"
 #include "Gimbal.h"
 
-// TODO: Add and FIX external declarations
+#ifdef __cplusplus
+extern "C" {
+    #endif
 
-// TODO: Add and FIX task handle declarations
-extern osThreadId_t imu_task_handle;
+    // TODO: Add and FIX external declarations
 
-[[noreturn]] void VImuTask(void *argument);
+    // TODO: Add and FIX task handle declarations
+    extern osThreadId_t imu_task_handle;
 
+    [[noreturn]] void VImuTask(void *argument);
+
+    #ifdef __cplusplus
+}
+#endif
 
 #endif //FINALTASK_RTOS_H
