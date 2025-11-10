@@ -106,7 +106,6 @@ void Bmi088ReadByte(uint8_t* rx_data, const uint8_t length)
     HAL_SPI_Receive(&hspi1, rx_data, length, 1000);
 }
 
-// TODO: Check the dummy byte requirement for read operations
 void Bmi088AccelWriteSingleReg(const uint8_t reg, const uint8_t data)
 {
     Bmi088GyroNsH();
@@ -154,26 +153,4 @@ void Bmi088GyroReadReg(const uint8_t reg, uint8_t* return_data, const uint8_t le
     Bmi088ReadByte(return_data, length);
 
     Bmi088GyroNsH();
-}
-
-/**
-  * @brief  读取 BMI088 加速度计的芯片 ID
-  */
-uint8_t Bmi088CheckAccelId(void)
-{
-    uint8_t acc_id = 0;
-    // 芯片 ID 寄存器地址为 0x00
-    Bmi088AccelReadReg(0x00, &acc_id, 1);
-    return acc_id;
-}
-
-/**
-  * @brief  读取 BMI088 陀螺仪的芯片 ID
-  */
-uint8_t Bmi088CheckGyroId(void)
-{
-    uint8_t gyro_id = 0;
-    // 芯片 ID 寄存器地址为 0x00
-    Bmi088GyroReadReg(0x00, &gyro_id, 1);
-    return gyro_id;
 }

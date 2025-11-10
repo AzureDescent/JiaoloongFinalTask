@@ -10,14 +10,10 @@
 constexpr float dt = 0.001f;
 constexpr float kg = 0.1f;
 constexpr float g_threshold = 0.1f;
-// TODO: Set correct gyro bias
 constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
 constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
-
-volatile uint8_t g_accel_id = 0xEE;
-volatile uint8_t g_gyro_id = 0xEE;
 
 [[noreturn]] void VImuTask(void* argument)
 {

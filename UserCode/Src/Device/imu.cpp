@@ -20,6 +20,8 @@ IMU::IMU(const float& dt,
 {
     memcpy(R_imu_, R_imu, 9 * sizeof(float));
     memcpy(gyro_bias_, gyro_bias, 3 * sizeof(float));
+    accel_scale_factor_ = 6.0f;   // (±6g)
+    gyro_scale_factor_ = 500.0f;
 }
 
 void IMU::Init(EulerAngle_t euler_deg_init)
@@ -67,30 +69,30 @@ void IMU::Init(EulerAngle_t euler_deg_init)
             break;;
     }
 
-    // constexpr uint8_t gyro_range_setting = 0x02;
-    Bmi088GyroWriteSingleReg(BMI088_GYRO_RANGE_REG, 0x02);
+    constexpr uint8_t gyro_range_setting = 0x02;
+    Bmi088GyroWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
     gyro_scale_factor_ = 500.0f;
-    // switch (gyro_range_setting)
-    // {
-    //     case 0:
-    //         gyro_scale_factor_ = 2000.0f;
-    //         break;
-    //     case 1:
-    //         gyro_scale_factor_ = 1000.0f;
-    //         break;
-    //     case 2:
-    //         gyro_scale_factor_ = 500.0f;
-    //         break;
-    //     case 3:
-    //         gyro_scale_factor_ = 250.0f;
-    //         break;
-    //     case 4:
-    //         gyro_scale_factor_ = 125.0f;
-    //         break;
-    //     default:
-    //         gyro_scale_factor_ = 2000.0f;
-    //         break;;
-    // }
+    switch (gyro_range_setting)
+    {
+        case 0:
+            gyro_scale_factor_ = 2000.0f;
+            break;
+        case 1:
+            gyro_scale_factor_ = 1000.0f;
+            break;
+        case 2:
+            gyro_scale_factor_ = 500.0f;
+            break;
+        case 3:
+            gyro_scale_factor_ = 250.0f;
+            break;
+        case 4:
+            gyro_scale_factor_ = 125.0f;
+            break;
+        default:
+            gyro_scale_factor_ = 2000.0f;
+            break;;
+    }
 }
 
 void IMU::ReadSensor()
@@ -134,16 +136,12 @@ void IMU::UpdateAttitude()
 
     Mahony::Matrix33fMultVector3f(R_imu_, temp_accel_m_s2, accel_sensor_);
 
-    // 检查加速度计的模长是否接近于 0
     float accel_norm = sqrtf(accel_sensor_[0] * accel_sensor_[0] +
                              accel_sensor_[1] * accel_sensor_[1] +
                              accel_sensor_[2] * accel_sensor_[2]);
 
-    // 如果模长为 0 (或非常小)，则不更新姿态，以防止除零 (NaN)
     if (accel_norm < 0.001f)
     {
-        // (可选) 在这里您可以设置一个错误标志
-        // 保持上一次的姿态不变，仅返回
         return;
     }
 
@@ -153,9 +151,7 @@ void IMU::UpdateAttitude()
 
     if (std::isnan(sin_pitch) || std::isinf(sin_pitch))
     {
-        // 如果 q_ 已经损坏，立即停止，防止 NaN 传播
-        // 这也暗示 mahony.cpp 内部的归一化需要修复
-        return; // 保持上一帧的姿态
+        return;
     }
 
     if (sin_pitch > 1.0f)
@@ -178,6 +174,16 @@ void IMU::UpdateAttitude()
     {
         euler_rad_.roll = atan2f(2.0f * (q_[0] * q_[1] + q_[2] * q_[3]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[2] * q_[2]));
         euler_rad_.yaw = atan2f(2.0f * (q_[0] * q_[3] + q_[1] * q_[2]), 1.0f - 2.0f * (q_[2] * q_[2] + q_[3] * q_[3]));
+    }
+
+    if (std::isnan(mahony_.ww_[0]) || std::isinf(mahony_.ww_[0]) ||
+        std::isnan(mahony_.ww_[1]) || std::isinf(mahony_.ww_[1]) ||
+        std::isnan(mahony_.ww_[2]) || std::isinf(mahony_.ww_[2]) ||
+        std::isnan(mahony_.aw_[0]) || std::isinf(mahony_.aw_[0]) ||
+        std::isnan(mahony_.aw_[1]) || std::isinf(mahony_.aw_[1]) ||
+        std::isnan(mahony_.aw_[2]) || std::isinf(mahony_.aw_[2]))
+    {
+        return;
     }
 
     euler_deg_.roll = euler_rad_.roll * (180.0f / M_PI);
