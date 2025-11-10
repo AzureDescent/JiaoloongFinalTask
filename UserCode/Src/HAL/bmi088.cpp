@@ -68,10 +68,18 @@ void Bmi088Init()
     Bmi088AccelNsH();
 }
 
+uint8_t Bmi088AccelReadID()
+{
+    uint8_t id = 0;
+    // Bmi088AccelReadReg 负责处理片选和读写时序
+    Bmi088AccelReadReg(BMI088_ACC_CHIP_ID_REG, &id, 1);
+    return id;
+}
+
 void Bmi088WriteByte(const uint8_t tx_data)
 {
     HAL_SPI_Transmit(&hspi1, &tx_data, 1, 1000);
-    while (HAL_SPI_GetState(&hspi1) == HAL_SPI_STATE_BUSY_TX) {}
+    // while (HAL_SPI_GetState(&hspi1) == HAL_SPI_STATE_BUSY_TX) {}
 }
 
 void Bmi088WriteReg(const uint8_t reg, const uint8_t data)
@@ -83,7 +91,7 @@ void Bmi088WriteReg(const uint8_t reg, const uint8_t data)
 void Bmi088ReadByte(uint8_t* rx_data, const uint8_t length)
 {
     HAL_SPI_Receive(&hspi1, rx_data, length, 1000);
-    while (HAL_SPI_GetState(&hspi1) == HAL_SPI_STATE_BUSY_RX) {}
+    // while (HAL_SPI_GetState(&hspi1) == HAL_SPI_STATE_BUSY_RX) {}
 }
 
 // TODO: Check the dummy byte requirement for read operations

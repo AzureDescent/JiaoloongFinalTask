@@ -133,10 +133,7 @@ int main(void)
     // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
     // TODO: Define filter_config appropriately for CAN filter
-    HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     // TODO: Verify the sequence of starting CAN and activating notifications
-    HAL_CAN_Start(&hcan1);
-    HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_TIM_Base_Start_IT(&htim7);
 
     IMU_Init_Wrapper();
@@ -146,12 +143,6 @@ int main(void)
   osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();
 
-    const osThreadAttr_t imu_task_attributes = {
-        .name = "imuTask",
-        .stack_size = 256,
-        .priority = osPriorityHigh
-    };
-    imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
   /* Start scheduler */
   osKernelStart();
 

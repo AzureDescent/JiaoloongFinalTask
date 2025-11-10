@@ -13,6 +13,9 @@ extern "C"
 {
 #endif
 
+#define BMI088_ACC_CHIP_ID_REG      0x00
+#define BMI088_ACC_CHIP_ID_VAL      0x1E
+
 // chip selection
 void Bmi088AccelNsL(void);
 void Bmi088AccelNsH(void);
@@ -21,6 +24,8 @@ void Bmi088GyroNsH(void);
 
 // bmi088 init
 void Bmi088Init(void);
+
+uint8_t Bmi088AccelReadID(void);
 
 // bmi088 read/write
 void Bmi088WriteByte(uint8_t tx_data);
