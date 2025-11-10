@@ -146,62 +146,12 @@ int main(void)
   osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();
 
-    const osMutexAttr_t gimbal_mutex_attributes = {
-        .name = "GimbalMutex"
-    };
-    gimbal_mutex_handle = osMutexNew(&gimbal_mutex_attributes);
-
-    const osSemaphoreAttr_t rc_sem_attributes = {
-        .name = "rcSem"
-    };
-    rc_data_ready_semaphore_handle = osSemaphoreNew(1, 0, &rc_sem_attributes);
-
-    const osMessageQueueAttr_t can_rx_queue_attributes = {
-        .name = "canRxQueue"
-    };
-    can_rx_queue_handle = osMessageQueueNew(16, sizeof(uint8_t[sizeof(CAN_RxHeaderTypeDef) + 8]), &can_rx_queue_attributes);
-
     const osThreadAttr_t imu_task_attributes = {
         .name = "imuTask",
         .stack_size = 256,
         .priority = osPriorityHigh
     };
     imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
-
-    // const osThreadAttr_t control_task_attributes = {
-    //     .name = "controlTask",
-    //     .stack_size = 512,
-    //     .priority = osPriorityAboveNormal
-    // };
-    // control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
-    //
-    // const osThreadAttr_t can_send_task_attributes = {
-    //     .name = "canSendTask",
-    //     .stack_size = 256,
-    //     .priority = osPriorityNormal
-    // };
-    // can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
-    //
-    // const osThreadAttr_t can_recv_task_attributes = {
-    //     .name = "canRecvTask",
-    //     .stack_size = 256,
-    //     .priority = osPriorityNormal
-    // };
-    // can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
-    //
-    // const osThreadAttr_t rc_process_task_attributes = {
-    //     .name = "rcProcessTask",
-    //     .stack_size = 256,
-    //     .priority = osPriorityNormal
-    // };
-    // rc_process_task_handle = osThreadNew(VRcProcessTask, NULL, &rc_process_task_attributes);
-    //
-    // const osThreadAttr_t iwdg_task_attributes = {
-    //     .name = "iwdgTask",
-    //     .stack_size = 128,
-    //     .priority = osPriorityLow
-    // };
-    // iwdg_task_handle = osThreadNew(VIwdgTask, NULL, &iwdg_task_attributes);
   /* Start scheduler */
   osKernelStart();
 

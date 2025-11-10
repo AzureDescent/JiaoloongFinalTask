@@ -21,7 +21,7 @@ typedef struct EulerAngle
     float roll;
 
 #ifdef __cplusplus
-    EulerAngle(float y = 0, float p = 0, float r = 0):
+    explicit EulerAngle(float y = 0, float p = 0, float r = 0):
         yaw(y),
         pitch(p),
         roll(r) {}
