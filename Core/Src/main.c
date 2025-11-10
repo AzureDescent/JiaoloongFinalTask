@@ -129,7 +129,7 @@ int main(void)
 
     const osThreadAttr_t imu_task_attributes = {
         .name = "imuTask",
-        .stack_size = 256,
+        .stack_size = 1024 * 4,
         .priority = osPriorityHigh
     };
     imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
