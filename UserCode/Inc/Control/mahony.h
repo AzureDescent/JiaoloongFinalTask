@@ -5,7 +5,7 @@
 #ifndef FINALTASK_MAHONY_H
 #define FINALTASK_MAHONY_H
 
-constexpr float gravity_accel = 9.794f;
+const float gravity_accel = 9.794f;
 
 class Mahony
 {
