@@ -124,7 +124,7 @@ int main(void)
   MX_CAN1_Init();
   MX_TIM7_Init();
   MX_USART3_UART_Init();
-  MX_IWDG_Init();
+  // MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
 
@@ -143,7 +143,12 @@ int main(void)
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();
-
+    const osThreadAttr_t imu_task_attributes = {
+        .name = "imuTask",
+        .stack_size = 256,
+        .priority = osPriorityHigh
+    };
+    imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
   /* Start scheduler */
   osKernelStart();
 
@@ -218,19 +223,19 @@ void SystemClock_Config(void)
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-// //
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM6)
-  {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-// //
-  /* USER CODE END Callback 1 */
-}
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// {
+//   /* USER CODE BEGIN Callback 0 */
+// // //
+//   /* USER CODE END Callback 0 */
+//   if (htim->Instance == TIM6)
+//   {
+//     HAL_IncTick();
+//   }
+//   /* USER CODE BEGIN Callback 1 */
+// // //
+//   /* USER CODE END Callback 1 */
+// }
 
 /**
   * @brief  This function is executed in case of error occurrence.
