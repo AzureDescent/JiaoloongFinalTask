@@ -124,17 +124,18 @@ void Mahony::Vector3fSub(float a[3], float b[3], float result[3])
 // 4维向量单位化（归一化）
 void Mahony::Vector4fUnit(float q[4], float result[4])
 {
-    float norm = std::sqrt(q[0] * q[0] +
+    const float norm = std::sqrt(q[0] * q[0] +
         q[1] * q[1] +
         q[2] * q[2] +
         q[3] * q[3]);
 
     if (norm > 0.0001f)
     {
-        for (int i = 0; i < 4; i++)
-        {
-            result[i] = q[i] / norm;
-        }
+        float inv_norm = 1.0f / norm;
+        result[0] = q[0] * inv_norm;
+        result[1] = q[1] * inv_norm;
+        result[2] = q[2] * inv_norm;
+        result[3] = q[3] * inv_norm;
     }
     else
     {

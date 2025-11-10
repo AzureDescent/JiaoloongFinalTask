@@ -151,15 +151,31 @@ void IMU::UpdateAttitude()
 
     float sin_pitch = 2.0f * (q_[0] * q_[2] - q_[1] * q_[3]);
 
+    if (std::isnan(sin_pitch))
+    {
+        // 如果 q_ 已经损坏，立即停止，防止 NaN 传播
+        // 这也暗示 mahony.cpp 内部的归一化需要修复
+        return; // 保持上一帧的姿态
+    }
+
+    if (sin_pitch > 1.0f)
+    {
+        sin_pitch = 1.0f;
+    }
+    else if (sin_pitch < -1.0f)
+    {
+        sin_pitch = -1.0f;
+    }
+
+    euler_rad_.pitch = asinf(sin_pitch);
+
     if (fabsf(sin_pitch) >= 0.9999f)
     {
-        euler_rad_.pitch = copysignf(M_PI / 2.0f, sin_pitch);
         euler_rad_.roll = 0.0f;
         euler_rad_.yaw = atan2f(-2.0f * (q_[1] * q_[3] - q_[0] * q_[2]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[3] * q_[3]));
     }
     else
     {
-        euler_rad_.pitch = asinf(sin_pitch);
         euler_rad_.roll = atan2f(2.0f * (q_[0] * q_[1] + q_[2] * q_[3]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[2] * q_[2]));
         euler_rad_.yaw = atan2f(2.0f * (q_[0] * q_[3] + q_[1] * q_[2]), 1.0f - 2.0f * (q_[2] * q_[2] + q_[3] * q_[3]));
     }
