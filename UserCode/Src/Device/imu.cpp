@@ -20,8 +20,17 @@ IMU::IMU(const float& dt,
 {
     memcpy(R_imu_, R_imu, 9 * sizeof(float));
     memcpy(gyro_bias_, gyro_bias, 3 * sizeof(float));
-    accel_scale_factor_ = 6.0f;   // (±6g)
+    accel_scale_factor_ = 6.0f;
     gyro_scale_factor_ = 500.0f;
+
+    memset(gyro_sensor_dps_, 0, sizeof(gyro_sensor_dps_));
+    memset(gyro_sensor_, 0, sizeof(gyro_sensor_));
+    memset(accel_sensor_, 0, sizeof(accel_sensor_));
+
+    memset(gyro_world_, 0, sizeof(gyro_world_));
+    memset(gyro_world_dps_, 0, sizeof(gyro_world_dps_));
+
+    memset(accel_world_, 0, sizeof(accel_world_));
 }
 
 void IMU::Init(EulerAngle_t euler_deg_init)
@@ -97,13 +106,24 @@ void IMU::Init(EulerAngle_t euler_deg_init)
 
 void IMU::ReadSensor()
 {
-    int16_t raw_accel_data[3];
+    int16_t raw_accel_data[3] = {0, 0, 0};
+    int16_t raw_gyro_data[3] = {0, 0, 0};
+
+    if (accel_scale_factor_ < 0.1f || accel_scale_factor_ > 100.0f || std::isnan(accel_scale_factor_))
+    {
+        return;
+    }
+
     Bmi088AccelReadReg(BMI088_ACC_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_accel_data), 6);
     raw_data_.accel[0] = static_cast<float>(raw_accel_data[0]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[1] = static_cast<float>(raw_accel_data[1]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[2] = static_cast<float>(raw_accel_data[2]) / 32768.0f * accel_scale_factor_;
 
-    int16_t raw_gyro_data[3];
+    if (gyro_scale_factor_ < 1.0f || gyro_scale_factor_ > 3000.0f || std::isnan(gyro_scale_factor_))
+    {
+        return;
+    }
+
     Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
     raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
