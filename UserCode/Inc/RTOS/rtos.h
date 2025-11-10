@@ -16,6 +16,8 @@ extern "C" {
     // TODO: Add and FIX task handle declarations
     extern osThreadId_t imu_task_handle;
 
+    extern volatile uint8_t g_accel_id;
+    extern volatile uint8_t g_gyro_id;
     [[noreturn]] void VImuTask(void *argument);
 
     #ifdef __cplusplus

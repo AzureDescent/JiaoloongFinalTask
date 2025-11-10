@@ -138,3 +138,25 @@ void Bmi088GyroReadReg(const uint8_t reg, uint8_t* return_data, const uint8_t le
 
     Bmi088GyroNsH();
 }
+
+/**
+  * @brief  读取 BMI088 加速度计的芯片 ID
+  */
+uint8_t Bmi088CheckAccelId(void)
+{
+    uint8_t acc_id = 0;
+    // 芯片 ID 寄存器地址为 0x00
+    Bmi088AccelReadReg(0x00, &acc_id, 1);
+    return acc_id;
+}
+
+/**
+  * @brief  读取 BMI088 陀螺仪的芯片 ID
+  */
+uint8_t Bmi088CheckGyroId(void)
+{
+    uint8_t gyro_id = 0;
+    // 芯片 ID 寄存器地址为 0x00
+    Bmi088GyroReadReg(0x00, &gyro_id, 1);
+    return gyro_id;
+}
