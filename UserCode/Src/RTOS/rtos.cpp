@@ -30,7 +30,7 @@ volatile uint8_t g_gyro_id = 0xEE;
 
         // TODO: Sync with Control Task if necessary
 
-        osDelayUntil(tick += 2);
+        osDelayUntil(tick += 1);
     }
 }
 

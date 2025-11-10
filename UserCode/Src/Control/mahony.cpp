@@ -33,6 +33,10 @@ void Mahony::Update(float q[4], float ws[3], float as[3])
     // calculate error between measure & reference of acceleration
     Vector3fCross(as_, _gs_, ea_);
 
+    we_[0] = 0.0f;
+    we_[1] = 0.0f;
+    we_[2] = 0.0f;
+
     // wu(update)=ws+kg*eg
     if (fabs(Vector3fNorm(as_) - gravity_accel) < g_threshold_)
     {
@@ -129,19 +133,27 @@ void Mahony::Vector4fUnit(float q[4], float result[4])
         q[2] * q[2] +
         q[3] * q[3]);
 
-    if (norm > 0.0001f)
+    if (std::isnan(norm) || std::isinf(norm))
+    {
+        result[0] = 1.0f;
+        result[1] = 0.0f;
+        result[2] = 0.0f;
+        result[3] = 0.0f;
+    }
+    else if (norm < 1e-6f)
+    {
+        // 模长为 0，同样重置
+        result[0] = 1.0f;
+        result[1] = 0.0f;
+        result[2] = 0.0f;
+        result[3] = 0.0f;
+    }
+    else
     {
         float inv_norm = 1.0f / norm;
         result[0] = q[0] * inv_norm;
         result[1] = q[1] * inv_norm;
         result[2] = q[2] * inv_norm;
         result[3] = q[3] * inv_norm;
-    }
-    else
-    {
-        result[0] = 1.0f;
-        result[1] = 0.0f;
-        result[2] = 0.0f;
-        result[3] = 0.0f;
     }
 }

@@ -67,30 +67,30 @@ void IMU::Init(EulerAngle_t euler_deg_init)
             break;;
     }
 
-    constexpr uint8_t gyro_range_setting = 0x00;
-    Bmi088GyroWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
-
-    switch (gyro_range_setting)
-    {
-        case 0:
-            gyro_scale_factor_ = 2000.0f;
-            break;
-        case 1:
-            gyro_scale_factor_ = 1000.0f;
-            break;
-        case 2:
-            gyro_scale_factor_ = 500.0f;
-            break;
-        case 3:
-            gyro_scale_factor_ = 250.0f;
-            break;
-        case 4:
-            gyro_scale_factor_ = 125.0f;
-            break;
-        default:
-            gyro_scale_factor_ = 2000.0f;
-            break;;
-    }
+    // constexpr uint8_t gyro_range_setting = 0x02;
+    Bmi088GyroWriteSingleReg(BMI088_GYRO_RANGE_REG, 0x02);
+    gyro_scale_factor_ = 500.0f;
+    // switch (gyro_range_setting)
+    // {
+    //     case 0:
+    //         gyro_scale_factor_ = 2000.0f;
+    //         break;
+    //     case 1:
+    //         gyro_scale_factor_ = 1000.0f;
+    //         break;
+    //     case 2:
+    //         gyro_scale_factor_ = 500.0f;
+    //         break;
+    //     case 3:
+    //         gyro_scale_factor_ = 250.0f;
+    //         break;
+    //     case 4:
+    //         gyro_scale_factor_ = 125.0f;
+    //         break;
+    //     default:
+    //         gyro_scale_factor_ = 2000.0f;
+    //         break;;
+    // }
 }
 
 void IMU::ReadSensor()
