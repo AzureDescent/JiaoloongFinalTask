@@ -30,3 +30,10 @@ IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
         osDelayUntil(tick += 2);
     }
 }
+
+extern "C" void IMU_Init_Wrapper()
+{
+    // C 文件中无法使用 C++ 构造函数，因此手动构造一个 C-compatible 的初始化角度
+    EulerAngle_t init_angle(0, 0, 0);
+    imu_sensor.Init(init_angle);
+}

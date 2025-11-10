@@ -8,7 +8,6 @@
 #include "Gimbal.h"
 
 // TODO: Add and FIX external declarations
-extern IMU imu_sensor;
 
 // TODO: Add and FIX task handle declarations
 extern osThreadId_t imu_task_handle;
