@@ -37,17 +37,13 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
     /* USER CODE END Callback 0 */
 
-    // 关键修复：保留 HAL Timebase (TIM6) 的逻辑
-    // 注意：您需要确认 HAL timebase 确实是 TIM6。
-    // 如果您在 stm32f4xx_hal_timebase_tim.c 中看到 htim6，这里就用 TIM6。
-    if (htim->Instance == TIM6) // 或者 htim->Instance == htim6.Instance
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }
 
     /* USER CODE BEGIN Callback 1 */
 
-    // 您自己的 TIM7 逻辑
     if (htim->Instance == TIM7) //
     {
         count++;
@@ -56,8 +52,7 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
             count = 0;
         }
 
-        // TODO: 在这里添加 TIM7 需要执行的任何操作
-        // 例如：发送信号量或通知 VImuTask
+        // TODO: Add TIM7 interrupt handling code here
     }
 
     /* USER CODE END Callback 1 */
