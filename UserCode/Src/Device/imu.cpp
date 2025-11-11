@@ -106,15 +106,18 @@ void IMU::Init(EulerAngle_t euler_deg_init)
 
 void IMU::ReadSensor()
 {
-    int16_t raw_accel_data[3] = {0, 0, 0};
-    int16_t raw_gyro_data[3] = {0, 0, 0};
+    int16_t raw_accel_data[3] = { 0, 0, 0 };
+    int16_t raw_gyro_data[3] = { 0, 0, 0 };
 
     if (accel_scale_factor_ < 0.1f || accel_scale_factor_ > 100.0f || std::isnan(accel_scale_factor_))
     {
         return;
     }
 
+    // taskENTER_CRITICAL();
     Bmi088AccelReadReg(BMI088_ACC_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_accel_data), 6);
+    // taskEXIT_CRITICAL();
+
     raw_data_.accel[0] = static_cast<float>(raw_accel_data[0]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[1] = static_cast<float>(raw_accel_data[1]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[2] = static_cast<float>(raw_accel_data[2]) / 32768.0f * accel_scale_factor_;
@@ -124,7 +127,10 @@ void IMU::ReadSensor()
         return;
     }
 
+    // taskENTER_CRITICAL();
     Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
+    // taskENTER_CRITICAL();
+
     raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[2] = static_cast<float>(raw_gyro_data[2]) / 32768.0f * gyro_scale_factor_;
@@ -132,6 +138,19 @@ void IMU::ReadSensor()
 
 void IMU::UpdateAttitude()
 {
+    if (std::isnan(q_[0]) || std::isinf(q_[0]) ||
+        std::isnan(q_[1]) || std::isinf(q_[1]) ||
+        std::isnan(q_[2]) || std::isinf(q_[2]) ||
+        std::isnan(q_[3]) || std::isinf(q_[3]))
+    {
+        q_[0] = 1.0f;
+        q_[1] = 0.0f;
+        q_[2] = 0.0f;
+        q_[3] = 0.0f;
+
+        return;
+    }
+
     float temp_gyro_dps[3];
     float temp_accel_g[3];
     float temp_accel_m_s2[3];
@@ -157,8 +176,8 @@ void IMU::UpdateAttitude()
     Mahony::Matrix33fMultVector3f(R_imu_, temp_accel_m_s2, accel_sensor_);
 
     float accel_norm = sqrtf(accel_sensor_[0] * accel_sensor_[0] +
-                             accel_sensor_[1] * accel_sensor_[1] +
-                             accel_sensor_[2] * accel_sensor_[2]);
+        accel_sensor_[1] * accel_sensor_[1] +
+        accel_sensor_[2] * accel_sensor_[2]);
 
     if (accel_norm < 0.001f)
     {

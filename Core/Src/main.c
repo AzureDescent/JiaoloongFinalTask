@@ -117,8 +117,8 @@ int main(void)
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     // TODO: Verify the sequence of starting CAN and activating notifications
     HAL_CAN_Start(&hcan1);
-    HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-    HAL_TIM_Base_Start_IT(&htim7);
+    // HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
+    // HAL_TIM_Base_Start_IT(&htim7);
 
     IMU_Init_Wrapper();
   /* USER CODE END 2 */
