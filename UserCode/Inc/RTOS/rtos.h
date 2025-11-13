@@ -7,6 +7,9 @@
 #include "cmsis_os2.h"
 #include "Gimbal.h"
 
+#ifdef __cplusplus
+extern "C" {
+    #endif
 // TODO: Add and FIX external declarations
 extern Gimbal gimbal_controller;
 extern IMU imu_sensor;
@@ -34,5 +37,8 @@ void VControlTask(void *argument);
 [[noreturn]] void VRcProcessTask(void *argument);
 [[noreturn]] void VIwdgTask(void *argument);
 
+    #ifdef __cplusplus
+}
+#endif
 
 #endif //FINALTASK_RTOS_H

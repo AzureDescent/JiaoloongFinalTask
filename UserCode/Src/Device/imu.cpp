@@ -20,6 +20,17 @@ IMU::IMU(const float& dt,
 {
     memcpy(R_imu_, R_imu, 9 * sizeof(float));
     memcpy(gyro_bias_, gyro_bias, 3 * sizeof(float));
+    accel_scale_factor_ = 6.0f;
+    gyro_scale_factor_ = 500.0f;
+
+    memset(gyro_sensor_dps_, 0, sizeof(gyro_sensor_dps_));
+    memset(gyro_sensor_, 0, sizeof(gyro_sensor_));
+    memset(accel_sensor_, 0, sizeof(accel_sensor_));
+
+    memset(gyro_world_, 0, sizeof(gyro_world_));
+    memset(gyro_world_dps_, 0, sizeof(gyro_world_dps_));
+
+    memset(accel_world_, 0, sizeof(accel_world_));
 }
 
 void IMU::Init(EulerAngle_t euler_deg_init)
@@ -67,7 +78,7 @@ void IMU::Init(EulerAngle_t euler_deg_init)
             break;;
     }
 
-    constexpr uint8_t gyro_range_setting = 0x00;
+    constexpr uint8_t gyro_range_setting = 0x02;
     Bmi088GyroWriteSingleReg(BMI088_GYRO_RANGE_REG, gyro_range_setting);
 
     switch (gyro_range_setting)
@@ -95,14 +106,31 @@ void IMU::Init(EulerAngle_t euler_deg_init)
 
 void IMU::ReadSensor()
 {
-    int16_t raw_accel_data[3];
+    int16_t raw_accel_data[3] = { 0, 0, 0 };
+    int16_t raw_gyro_data[3] = { 0, 0, 0 };
+
+    if (accel_scale_factor_ < 0.1f || accel_scale_factor_ > 100.0f || std::isnan(accel_scale_factor_))
+    {
+        return;
+    }
+
+    taskENTER_CRITICAL();
     Bmi088AccelReadReg(BMI088_ACC_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_accel_data), 6);
+    taskEXIT_CRITICAL();
+
     raw_data_.accel[0] = static_cast<float>(raw_accel_data[0]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[1] = static_cast<float>(raw_accel_data[1]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[2] = static_cast<float>(raw_accel_data[2]) / 32768.0f * accel_scale_factor_;
 
-    int16_t raw_gyro_data[3];
+    if (gyro_scale_factor_ < 1.0f || gyro_scale_factor_ > 3000.0f || std::isnan(gyro_scale_factor_))
+    {
+        return;
+    }
+
+    taskENTER_CRITICAL();
     Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
+    taskENTER_CRITICAL();
+
     raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[2] = static_cast<float>(raw_gyro_data[2]) / 32768.0f * gyro_scale_factor_;
@@ -110,6 +138,19 @@ void IMU::ReadSensor()
 
 void IMU::UpdateAttitude()
 {
+    if (std::isnan(q_[0]) || std::isinf(q_[0]) ||
+        std::isnan(q_[1]) || std::isinf(q_[1]) ||
+        std::isnan(q_[2]) || std::isinf(q_[2]) ||
+        std::isnan(q_[3]) || std::isinf(q_[3]))
+    {
+        q_[0] = 1.0f;
+        q_[1] = 0.0f;
+        q_[2] = 0.0f;
+        q_[3] = 0.0f;
+
+        return;
+    }
+
     float temp_gyro_dps[3];
     float temp_accel_g[3];
     float temp_accel_m_s2[3];
@@ -134,21 +175,54 @@ void IMU::UpdateAttitude()
 
     Mahony::Matrix33fMultVector3f(R_imu_, temp_accel_m_s2, accel_sensor_);
 
+    float accel_norm = sqrtf(accel_sensor_[0] * accel_sensor_[0] +
+        accel_sensor_[1] * accel_sensor_[1] +
+        accel_sensor_[2] * accel_sensor_[2]);
+
+    if (accel_norm < 0.001f)
+    {
+        return;
+    }
+
     mahony_.Update(q_, gyro_sensor_, accel_sensor_);
 
     float sin_pitch = 2.0f * (q_[0] * q_[2] - q_[1] * q_[3]);
 
+    if (std::isnan(sin_pitch) || std::isinf(sin_pitch))
+    {
+        return;
+    }
+
+    if (sin_pitch > 1.0f)
+    {
+        sin_pitch = 1.0f;
+    }
+    else if (sin_pitch < -1.0f)
+    {
+        sin_pitch = -1.0f;
+    }
+
+    euler_rad_.pitch = asinf(sin_pitch);
+
     if (fabsf(sin_pitch) >= 0.9999f)
     {
-        euler_rad_.pitch = copysignf(M_PI / 2.0f, sin_pitch);
         euler_rad_.roll = 0.0f;
         euler_rad_.yaw = atan2f(-2.0f * (q_[1] * q_[3] - q_[0] * q_[2]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[3] * q_[3]));
     }
     else
     {
-        euler_rad_.pitch = asinf(sin_pitch);
         euler_rad_.roll = atan2f(2.0f * (q_[0] * q_[1] + q_[2] * q_[3]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[2] * q_[2]));
         euler_rad_.yaw = atan2f(2.0f * (q_[0] * q_[3] + q_[1] * q_[2]), 1.0f - 2.0f * (q_[2] * q_[2] + q_[3] * q_[3]));
+    }
+
+    if (std::isnan(mahony_.ww_[0]) || std::isinf(mahony_.ww_[0]) ||
+        std::isnan(mahony_.ww_[1]) || std::isinf(mahony_.ww_[1]) ||
+        std::isnan(mahony_.ww_[2]) || std::isinf(mahony_.ww_[2]) ||
+        std::isnan(mahony_.aw_[0]) || std::isinf(mahony_.aw_[0]) ||
+        std::isnan(mahony_.aw_[1]) || std::isinf(mahony_.aw_[1]) ||
+        std::isnan(mahony_.aw_[2]) || std::isinf(mahony_.aw_[2]))
+    {
+        return;
     }
 
     euler_deg_.roll = euler_rad_.roll * (180.0f / M_PI);

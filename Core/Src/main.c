@@ -30,6 +30,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "rtos.h"
+#include "imu.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -138,7 +139,7 @@ int main(void)
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_TIM_Base_Start_IT(&htim7);
 
-    imu_sensor.Init();
+    IMU_Init_Wrapper();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -162,7 +163,7 @@ int main(void)
 
     const osThreadAttr_t imu_task_attributes = {
         .name = "imuTask",
-        .stack_size = 256,
+        .stack_size = 1024 * 8,
         .priority = osPriorityHigh
     };
     imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);

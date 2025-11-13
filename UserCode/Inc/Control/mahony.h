@@ -7,6 +7,7 @@
 
 const float gravity_accel = 9.794f;
 
+#ifdef __cplusplus
 class Mahony
 {
 public:
@@ -48,5 +49,6 @@ private:
     float _gw_[3] = { 0, 0, gravity_accel }; // -g(world)
     const float g_threshold_; // threshold of g offset
 };
+#endif
 
 #endif //FINALTASK_MAHONY_H

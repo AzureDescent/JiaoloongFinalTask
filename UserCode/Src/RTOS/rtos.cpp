@@ -127,3 +127,8 @@ void VControlTask(void* argument)
         osDelay(1000);
     }
 }
+extern "C" void IMU_Init_Wrapper()
+{
+    EulerAngle_t init_angle(0, 0, 0);
+    imu_sensor.Init(init_angle);
+}

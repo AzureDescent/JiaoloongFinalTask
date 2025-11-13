@@ -7,6 +7,7 @@
 
 #include "imu.h"
 
+#ifdef __cplusplus
 class Gimbal
 {
 public:
@@ -36,5 +37,6 @@ public:
 private:
     Mode current_mode;
 };
+#endif
 
 #endif //FINALTASK_GIMBAL_H

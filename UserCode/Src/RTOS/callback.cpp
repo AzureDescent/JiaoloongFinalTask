@@ -8,52 +8,52 @@
 #include "string.h"
 #include "rtos.h"
 #include "dma.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
 // FIXME: resolve the inclusion relationship of header files after the project is stable
 
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-    if (huart == &huart3)
-    {
-        // TODO: Receive data processing in Class Remote Control
-        // URL: https://github.com/AzureDescent/C-Type_Board/blob/RemoteControl/Core/Src/callback.cpp
+// 声明外部 HAL 库函数（如果需要的话，但通常 tim.h 中已包含）
+extern "C" void HAL_IncTick(void);
 
-        // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
+// 声明 TIM6 句柄（它在 stm32f4xx_hal_timebase_tim.c 中定义，但我们需要在此处引用）
+// 通常更好的做法是在 tim.h 中 extern 声明它
+extern TIM_HandleTypeDef htim6;
 
-        // TODO: Define rc_data_ready_semaphore_handle appropriately in RTOS setup
-        osSemaphoreRelease(rc_data_ready_semaphore_handle);
-    }
-}
-
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan)
-{
-    CAN_RxHeaderTypeDef rx_header;
-    uint8_t rx_data[8];
-
-    if (hcan -> Instance == CAN1)
-    {
-        if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_header, rx_data) == HAL_OK)
-        {
-            uint8_t queue_message[sizeof(CAN_RxHeaderTypeDef) + 8];
-            // TODO: Process queue_message better as needed
-            memcpy(queue_message, &rx_header, sizeof(CAN_RxHeaderTypeDef));
-            memcpy(queue_message + sizeof(CAN_RxHeaderTypeDef), rx_data, 8);
-
-            // TODO: Define can_rx_queue_handle appropriately in RTOS setup
-            osMessageQueuePut(can_rx_queue_handle, &queue_message, 0, 0);
-        }
-    }
-}
 
 uint32_t count = 0;
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim->Instance == TIM7)
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+
+    if (htim->Instance == TIM6)
+    {
+        HAL_IncTick();
+    }
+
+    /* USER CODE BEGIN Callback 1 */
+
+    if (htim->Instance == TIM7) //
     {
         count++;
         if (count >= 10000)
         {
             count = 0;
         }
+
+        // TODO: Add TIM7 interrupt handling code here
     }
+
+    /* USER CODE END Callback 1 */
 }
