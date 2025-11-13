@@ -29,8 +29,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+// TODO: Delete unnecessary includes
 #include "rtos.h"
 #include "imu.h"
+#include "rc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -127,7 +129,7 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
-    // TODO: Implement initialization functions for the controllers
+
     rc_controller.Init();
 
     // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
@@ -139,7 +141,9 @@ int main(void)
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_TIM_Base_Start_IT(&htim7);
 
+    // TODO: Implement initialization functions for the controllers
     IMU_Init_Wrapper();
+    RcInitWrapper();
   /* USER CODE END 2 */
 
   /* Init scheduler */

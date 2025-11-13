@@ -6,6 +6,7 @@
 #include "can.h"
 #include "stm32f4xx_hal_can.h"
 #include "iwdg.h"
+#include "rc.h"
 
 constexpr float dt = 0.001f;
 constexpr float kg = 0.1f;
