@@ -131,11 +131,11 @@ void Gimbal::UpdateMotorFeedback(uint16_t motor_id, uint8_t* data)
 {
     if (motor_id == YAW_MOTOR_ID)
     {
-        yaw_motor_.Decode(data);
+        yaw_motor.Decode(data);
     }
     else if (motor_id == PITCH_MOTOR_ID)
     {
-        pitch_motor_.Decode(data);
+        pitch_motor.Decode(data);
     }
 }
 

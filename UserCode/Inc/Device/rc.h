@@ -7,7 +7,7 @@
 
 #include <main.h>
 #include "cmsis_os2.h"
-#include "cmath"
+#include <cmath>
 
 enum SwitchStatus
 {
