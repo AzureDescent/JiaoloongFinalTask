@@ -13,20 +13,23 @@
 #include "task.h"
 // FIXME: resolve the inclusion relationship of header files after the project is stable
 
+// 声明在 rtos.cpp 中定义的全局缓冲区
+extern uint8_t rx_buf[18];
+extern uint8_t rx_data[18];
+
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
     if (huart == &huart3)
     {
-        // TODO: Receive data processing in Class Remote Control
-        // URL: https://github.com/AzureDescent/C-Type_Board/blob/RemoteControl/Core/Src/callback.cpp
+        // 1. 首先将 DMA 缓冲区 (rx_buf) 的内容复制到数据处理缓冲区 (rx_data)
+        //    这样可以防止在 VRcProcessTask 处理数据时，DMA 覆盖了旧数据
+        memcpy(rx_data, rx_buf, 18);
 
-        // TODO： extern uint8_t rx_buf[18];
-        // TODO： extern uint8_t rx_data[18];
+        // 2. 重新启动 DMA 接收
+        //    这是至关重要的，否则下一次数据将无法接收
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
-        // TODO： First copy DMA buffer to local buffer to avoid data corruption
-        // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
-
-        // TODO: Define rc_data_ready_semaphore_handle appropriately in RTOS setup
+        // 3. 释放信号量，通知 VRcProcessTask 任务有新数据需要处理
         osSemaphoreRelease(rc_data_ready_semaphore_handle);
     }
 }

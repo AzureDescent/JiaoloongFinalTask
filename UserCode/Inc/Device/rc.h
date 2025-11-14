@@ -6,7 +6,8 @@
 #define FINALTASK_RC_H
 
 #include <main.h>
-#include "rtos.h"
+#include "cmsis_os2.h"
+#include "cmath"
 
 enum SwitchStatus
 {
@@ -19,6 +20,15 @@ enum SwitchStatus
 class RemoteControl
 {
 public:
+    // 用于主控制线程获取数据的结构体
+    struct ControlData
+    {
+        float yaw_stick;
+        float pitch_stick;
+        SwitchStatus switch_right;
+        SwitchStatus switch_left;
+    };
+
     bool is_connected;
 
     uint32_t lastTick;
@@ -31,6 +41,10 @@ public:
     void DataProcess(const uint8_t* pData);
     bool IsOffline();
 
+    // 新增：获取处理后数据的 getter 函数
+    ControlData get_control_data() const;
+
+    // 原始数据
     uint16_t ch0;
     uint16_t ch1;
     uint16_t ch2;
@@ -38,14 +52,20 @@ public:
     uint8_t s1;
     uint8_t s2;
 
+    // 映射数据
     float Right_X;
     float Right_Y;
     float Left_X;
     float Left_Y;
 
-    // 注意：这里使用了上面定义的 SwitchStatus
+    // 映射后的拨杆状态
     SwitchStatus switch_left;
     SwitchStatus switch_right;
+
+private:
+    ControlData control_data;
+
+    const float RC_DEAD_ZONE = 0.05f;
 };
 
 #endif // __cplusplus
@@ -53,11 +73,11 @@ public:
 #ifdef __cplusplus
 extern "C"
 {
-    #endif
+#endif
 
-    void RcInitWrapper(void);
+void RcInitWrapper(void);
 
-    #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif // __cplusplus
 

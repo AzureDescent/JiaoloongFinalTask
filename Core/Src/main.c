@@ -144,6 +144,9 @@ int main(void)
     // TODO: Implement initialization functions for the controllers
     IMU_Init_Wrapper();
     RcInitWrapper();
+
+    extern uint8_t rx_buf[18];
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
   /* USER CODE END 2 */
 
   /* Init scheduler */

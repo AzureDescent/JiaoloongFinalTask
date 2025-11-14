@@ -19,6 +19,11 @@ Gimbal gimbal_controller;
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
 RemoteControl rc_controller;
 
+// 定义遥控器 DMA 接收缓冲区和数据处理缓冲区
+// callback.cpp 将通过 extern 引用它们
+uint8_t rx_buf[18];
+uint8_t rx_data[18];
+
 [[noreturn]] void VImuTask(void* argument)
 {
     uint32_t tick = osKernelGetTickCount();
@@ -30,7 +35,7 @@ RemoteControl rc_controller;
 
         // TODO: Sync with Control Task if necessary
 
-        osDelayUntil(tick += 2);
+        osDelayUntil(tick += 1);
     }
 }
 

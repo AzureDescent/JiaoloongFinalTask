@@ -6,6 +6,7 @@
 #define FINALTASK_GIMBAL_H
 
 #include "imu.h"
+#include "rc.h"
 
 #ifdef __cplusplus
 class Gimbal
@@ -21,15 +22,15 @@ public:
     Gimbal();
 
     void SetMode(Mode mode);
-    // TODO: Verify the parameter types for SetPIDTargets
-    void SetPIDTargets(/*    */);
-    // TODO: Verify the parameter types for SetImuFeedback
+
+    void SetPIDTargets(float yaw_target_stick, float pitch_target_stick);
+
     void SetImuFeedback(EulerAngle_t imu_attitude);
-    // TODO: Verify the parameter type for DetermineMode
-    Mode DetermineMode(/*    */);
+
+    Mode DetermineMode(SwitchStatus rc_switch);
 
     void RunControlLoop();
-    // TODO: Verify the parameter types for UpdateMotorFeedback
+
     void UpdateMotorFeedback(uint16_t motor_id, uint8_t* data);
     int16_t GetYawMotorCurrent();
     int16_t GetPitchMotorCurrent();
