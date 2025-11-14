@@ -40,10 +40,10 @@ void Gimbal::SetMode(Mode mode)
     // 如果模式从 OFF 切换到 START，重置 PID 积分项
     if (mode == GIMBAL_MODE_OFF)
     {
-        yaw_pos_pid_.Clear();
-        yaw_vel_pid_.Clear();
-        pitch_pos_pid_.Clear();
-        pitch_vel_pid_.Clear();
+        yaw_pos_pid.Clear();
+        yaw_speed_pid.Clear();
+        pitch_pos_pid.Clear();
+        pitch_speed_pid.Clear();
 
         yaw_current_out = 0;
         pitch_current_out = 0;

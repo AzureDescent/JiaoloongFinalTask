@@ -72,3 +72,9 @@ float PID::Calc(float ref, float fdb)
     }
     return output_;
 }
+
+// TODO: Implement the Clear function to reset the integral sum
+void PID::Clear()
+{
+    err_sum_ = 0.0f;
+}

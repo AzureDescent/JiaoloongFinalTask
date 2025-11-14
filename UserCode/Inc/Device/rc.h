@@ -7,7 +7,6 @@
 
 #include <main.h>
 #include "cmsis_os2.h"
-#include <cmath>
 
 enum SwitchStatus
 {
@@ -17,6 +16,9 @@ enum SwitchStatus
 };
 
 #ifdef __cplusplus
+
+#include <cmath>
+
 class RemoteControl
 {
 public:

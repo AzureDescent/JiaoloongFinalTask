@@ -7,14 +7,18 @@
 #include "cmsis_os2.h"
 #include "Gimbal.h"
 #include "rc.h"
+#include "imu.h"
 
 #ifdef __cplusplus
-extern "C" {
-    #endif
 // TODO: Add and FIX external declarations
 extern Gimbal gimbal_controller;
 extern IMU imu_sensor;
 extern RemoteControl rc_controller;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // TODO: Add and FIX task handle declarations
 extern osThreadId_t control_task_handle;

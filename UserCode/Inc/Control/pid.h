@@ -9,7 +9,8 @@
 class PID
 {
 public:
-    PID(void): PID(0, 0, 0, 0, 0){}
+    PID(void):
+        PID(0, 0, 0, 0, 0) {}
 
     PID(float kp, float ki, float kd, float i_max, float out_max, float d_filter_k = 1);
 
@@ -21,6 +22,8 @@ public:
     float output_;
 
     float err_sum_;
+
+    void Clear();
 
 private:
     float ref_, fdb_;

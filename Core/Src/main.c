@@ -130,10 +130,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
 
-    rc_controller.Init();
-
-    // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
-
     // TODO: Define filter_config appropriately for CAN filter
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     // TODO: Verify the sequence of starting CAN and activating notifications

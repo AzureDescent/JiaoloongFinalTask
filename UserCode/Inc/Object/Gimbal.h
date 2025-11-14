@@ -8,6 +8,7 @@
 #include "imu.h"
 #include "rc.h"
 #include "motor.h"
+#include "pid.h"
 
 #ifdef __cplusplus
 class Gimbal
