@@ -7,6 +7,7 @@
 
 #include "imu.h"
 #include "rc.h"
+#include "motor.h"
 
 #ifdef __cplusplus
 class Gimbal
@@ -37,6 +38,20 @@ public:
 
 private:
     Mode current_mode;
+
+    Motor yaw_motor;
+    Motor pitch_motor;
+
+    PID yaw_pos_pid;
+    PID yaw_speed_pid;
+    PID pitch_pos_pid;
+    PID pitch_speed_pid;
+
+    int16_t yaw_current_out;
+    int16_t pitch_current_out;
+
+    const uint16_t YAW_MOTOR_ID = 0x201;
+    const uint16_t PITCH_MOTOR_ID = 0x202;
 };
 #endif
 

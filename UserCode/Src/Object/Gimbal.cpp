@@ -3,8 +3,11 @@
 //
 #include "Gimbal.h"
 
-Gimbal::Gimbal():
-    current_mode(GIMBAL_MODE_OFF) {}
+Gimbal::Gimbal() : current_mode(GIMBAL_MODE_OFF), yaw_current_out(0), pitch_current_out(0)
+{
+    // TODO: 在 Task 3 中，初始化 PID 控制器参数
+    // 参考以往文件中的 PID 初始化代码
+}
 
 /**
  * @brief 根据遥控器右拨杆状态决定云台模式
@@ -37,7 +40,13 @@ void Gimbal::SetMode(Mode mode)
     // 如果模式从 OFF 切换到 START，重置 PID 积分项
     if (mode == GIMBAL_MODE_OFF)
     {
-        // ... 清除 PID 状态 ...
+        yaw_pos_pid_.Clear();
+        yaw_vel_pid_.Clear();
+        pitch_pos_pid_.Clear();
+        pitch_vel_pid_.Clear();
+
+        yaw_current_out = 0;
+        pitch_current_out = 0;
     }
 }
 
@@ -89,8 +98,8 @@ void Gimbal::RunControlLoop()
 {
     if (current_mode == GIMBAL_MODE_OFF)
     {
-        // 如果关闭，重置所有 PID 并设置电机电流为 0
-        // ...
+        yaw_current_out = 0;
+        pitch_current_out = 0;
         return;
     }
 
@@ -120,8 +129,14 @@ void Gimbal::RunControlLoop()
  */
 void Gimbal::UpdateMotorFeedback(uint16_t motor_id, uint8_t* data)
 {
-    // TODO: 根据 motor_id 和 data 更新对应的电机对象（M3508/M6020）
-    // e.g. if (motor_id == YAW_MOTOR_ID) { yaw_motor.Decode(data); }
+    if (motor_id == YAW_MOTOR_ID)
+    {
+        yaw_motor_.Decode(data);
+    }
+    else if (motor_id == PITCH_MOTOR_ID)
+    {
+        pitch_motor_.Decode(data);
+    }
 }
 
 /**
