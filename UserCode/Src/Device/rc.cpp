@@ -80,6 +80,22 @@ void RemoteControl::DataProcess(const uint8_t* pData)
     }
 }
 
+// TODO: Check the Function Logic
+bool RemoteControl::IsOffline()
+{
+    curTick = HAL_GetTick();
+    if (curTick - lastTick > 100)
+    {
+        is_connected = false;
+    }
+    else
+    {
+        is_connected = true;
+    }
+    lastTick = curTick;
+    return !is_connected;
+}
+
 extern "C" void RcInitWrapper(void)
 {
     rc_controller.Init();

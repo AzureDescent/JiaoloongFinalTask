@@ -300,6 +300,8 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   * @{
   */
 
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size) {}
+
 /**
   * @brief This function is called to increment  a global variable "uwTick"
   *        used as application time base.

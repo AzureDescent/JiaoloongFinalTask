@@ -13,6 +13,24 @@
 #include "task.h"
 // FIXME: resolve the inclusion relationship of header files after the project is stable
 
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+    if (huart == &huart3)
+    {
+        // TODO: Receive data processing in Class Remote Control
+        // URL: https://github.com/AzureDescent/C-Type_Board/blob/RemoteControl/Core/Src/callback.cpp
+
+        // TODO： extern uint8_t rx_buf[18];
+        // TODO： extern uint8_t rx_data[18];
+
+        // TODO： First copy DMA buffer to local buffer to avoid data corruption
+        // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
+
+        // TODO: Define rc_data_ready_semaphore_handle appropriately in RTOS setup
+        osSemaphoreRelease(rc_data_ready_semaphore_handle);
+    }
+}
+
 // 声明外部 HAL 库函数（如果需要的话，但通常 tim.h 中已包含）
 extern "C" void HAL_IncTick(void);
 

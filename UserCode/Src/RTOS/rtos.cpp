@@ -40,9 +40,9 @@ RemoteControl rc_controller;
     {
         osSemaphoreAcquire(rc_data_ready_semaphore_handle, osWaitForever);
 
-        rc_controller.processData();
+        rc_controller.Handle(rx_data);
 
-        if (rc_controller.is_offline())
+        if (rc_controller.IsOffline())
         {
             gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
         }

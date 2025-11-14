@@ -29,6 +29,7 @@ public:
 
     float LinearMapping(int in_min, int in_max, int input, float out_min, float out_max);
     void DataProcess(const uint8_t* pData);
+    bool IsOffline();
 
     uint16_t ch0;
     uint16_t ch1;
