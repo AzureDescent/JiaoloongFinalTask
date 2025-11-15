@@ -19,6 +19,11 @@ Gimbal gimbal_controller;
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
 RemoteControl rc_controller;
 
+// 定义遥控器 DMA 接收缓冲区和数据处理缓冲区
+// callback.cpp 将通过 extern 引用它们
+uint8_t rx_buf[18];
+uint8_t rx_data[18];
+
 [[noreturn]] void VImuTask(void* argument)
 {
     uint32_t tick = osKernelGetTickCount();
@@ -30,14 +35,25 @@ RemoteControl rc_controller;
 
         // TODO: Sync with Control Task if necessary
 
-        osDelayUntil(tick += 2);
+        osDelayUntil(tick += 1);
     }
 }
 
 [[noreturn]] void VRcProcessTask(void* argument)
 {
+    // --- 新增代码：修复启动崩溃 ---
+    // 在任务开始时，手动启动第一次 UART DMA 空闲中断接收。
+    // 此时 RTOS 调度器已经在运行，中断回调是安全的。
+    if (HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18) != HAL_OK)
+    {
+        // 如果启动失败，可以在这里处理错误，例如进入死循环
+        Error_Handler();
+    }
+    // ---------------------------------
+
     for (;;)
     {
+        // 现在这个断点应该可以命中了
         osSemaphoreAcquire(rc_data_ready_semaphore_handle, osWaitForever);
 
         rc_controller.Handle(rx_data);

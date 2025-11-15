@@ -58,6 +58,7 @@ osThreadId_t imu_task_handle;
 osThreadId_t can_send_task_handle;
 osThreadId_t can_recv_task_handle;
 osThreadId_t iwdg_task_handle;
+osThreadId_t rc_process_task_handle;
 
 osThreadId_t can_rx_queue_handle;
 
@@ -130,20 +131,18 @@ int main(void)
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
 
-    rc_controller.Init();
-
-    // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
     // TODO: Define filter_config appropriately for CAN filter
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     // TODO: Verify the sequence of starting CAN and activating notifications
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-    HAL_TIM_Base_Start_IT(&htim7);
 
     // TODO: Implement initialization functions for the controllers
     IMU_Init_Wrapper();
     RcInitWrapper();
+
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -195,14 +194,14 @@ int main(void)
 
     const osThreadAttr_t rc_process_task_attributes = {
         .name = "rcProcessTask",
-        .stack_size = 256,
+        .stack_size = 1024 * 4,
         .priority = osPriorityNormal
     };
     rc_process_task_handle = osThreadNew(VRcProcessTask, NULL, &rc_process_task_attributes);
 
     const osThreadAttr_t iwdg_task_attributes = {
         .name = "iwdgTask",
-        .stack_size = 128,
+        .stack_size = 1024,
         .priority = osPriorityLow
     };
     iwdg_task_handle = osThreadNew(VIwdgTask, NULL, &iwdg_task_attributes);

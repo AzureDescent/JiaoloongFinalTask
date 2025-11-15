@@ -13,21 +13,42 @@
 #include "task.h"
 // FIXME: resolve the inclusion relationship of header files after the project is stable
 
+// 声明在 rtos.cpp 中定义的全局缓冲区
+extern uint8_t rx_buf[18];
+extern uint8_t rx_data[18];
+
+extern RemoteControl rc_controller;
+
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
     if (huart == &huart3)
     {
-        // TODO: Receive data processing in Class Remote Control
-        // URL: https://github.com/AzureDescent/C-Type_Board/blob/RemoteControl/Core/Src/callback.cpp
+        // 1. 立即重启 DMA，准备接收下一帧 (这是正确的)
+        HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
-        // TODO： extern uint8_t rx_buf[18];
-        // TODO： extern uint8_t rx_data[18];
+        // 2. 获取当前时间（使用 RTOS 的时钟）
+        uint32_t current_tick = osKernelGetTickCount();
 
-        // TODO： First copy DMA buffer to local buffer to avoid data corruption
-        // HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
+        // 3. 恢复 C 板的超时检查逻辑 (使用 500ms 作为阈值)
+        if (current_tick - rc_controller.lastTick > 500)
+        {
+            rc_controller.is_connected = false;
+            // 如果超时（刚启动或信号丢失），不处理数据（不释放信号量）
+        }
+        else // 4. 未超时，数据被认为是有效的
+        {
+            rc_controller.is_connected = true;
 
-        // TODO: Define rc_data_ready_semaphore_handle appropriately in RTOS setup
-        osSemaphoreRelease(rc_data_ready_semaphore_handle);
+            // 复制有效数据
+            memcpy(rx_data, rx_buf, 18);
+
+            // 释放信号量，让 VRcProcessTask 任务去处理
+            osSemaphoreRelease(rc_data_ready_semaphore_handle);
+        }
+
+        // 5. 始终更新 lastTick（模仿 C 板的逻辑）
+        //    这样 IsOffline() 才能正确工作
+        rc_controller.lastTick = current_tick;
     }
 }
 

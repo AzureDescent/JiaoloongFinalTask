@@ -3,6 +3,8 @@
 //
 #include "rc.h"
 
+extern RemoteControl rc_controller;
+
 void RemoteControl::Init()
 {
     // TODO: Check Initialization
@@ -17,6 +19,8 @@ void RemoteControl::Init()
 
     switch_left = MID;
     switch_right = MID;
+
+    control_data = { 0.0f, 0.0f, MID, MID };
 }
 
 float RemoteControl::LinearMapping(int in_min, int in_max, int input, float out_min, float out_max)
@@ -25,12 +29,12 @@ float RemoteControl::LinearMapping(int in_min, int in_max, int input, float out_
     return output_mapped;
 }
 
-void RemoteControl::Handle(const uint8_t* Data)
+void RemoteControl::Handle(uint8_t* Data)
 {
     DataProcess(Data);
 }
 
-void RemoteControl::DataProcess(const uint8_t* pData)
+void RemoteControl::DataProcess(uint8_t* pData)
 {
     if (pData == nullptr)
     {
@@ -48,6 +52,23 @@ void RemoteControl::DataProcess(const uint8_t* pData)
     Right_Y = LinearMapping(364, 1684, ch1, -1.0f, 1.0f);
     Left_X = LinearMapping(364, 1684, ch2, -1.0f, 1.0f);
     Left_Y = LinearMapping(364, 1684, ch3, -1.0f, 1.0f);
+
+    if (std::fabs(Right_X) < RC_DEAD_ZONE)
+    {
+        Right_X = 0.0f;
+    }
+    if (std::fabs(Right_Y) < RC_DEAD_ZONE)
+    {
+        Right_Y = 0.0f;
+    }
+    if (std::fabs(Left_X) < RC_DEAD_ZONE)
+    {
+        Left_X = 0.0f;
+    }
+    if (std::fabs(Left_Y) < RC_DEAD_ZONE)
+    {
+        Left_Y = 0.0f;
+    }
 
     switch (s1)
     {
@@ -78,13 +99,18 @@ void RemoteControl::DataProcess(const uint8_t* pData)
         default:
             switch_right = MID;
     }
+
+    control_data.yaw_stick = Right_X;
+    control_data.pitch_stick = Right_Y;
+    control_data.switch_right = switch_right;
+    control_data.switch_left = switch_left;
 }
 
 // TODO: Check the Function Logic
 bool RemoteControl::IsOffline()
 {
-    curTick = HAL_GetTick();
-    if (curTick - lastTick > 100)
+    curTick = osKernelGetTickCount();
+    if (curTick - lastTick > 500)
     {
         is_connected = false;
     }
@@ -92,8 +118,12 @@ bool RemoteControl::IsOffline()
     {
         is_connected = true;
     }
-    lastTick = curTick;
     return !is_connected;
+}
+
+RemoteControl::ControlData RemoteControl::get_control_data() const
+{
+    return control_data;
 }
 
 extern "C" void RcInitWrapper(void)
