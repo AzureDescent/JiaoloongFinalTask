@@ -47,10 +47,10 @@ uint8_t rx_data[18];
 
         rc_controller.Handle(rx_data);
 
-        if (rc_controller.IsOffline())
-        {
-            gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
-        }
+        // if (rc_controller.IsOffline())
+        // {
+        //     gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
+        // }
     }
 }
 
