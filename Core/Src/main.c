@@ -131,11 +131,10 @@ int main(void)
     HAL_TIM_Base_Start_IT(&htim7);
 
     // TODO: Define filter_config appropriately for CAN filter
-    HAL_CAN_ConfigFilter(&hcan1, &filter_config);
+    // HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     // TODO: Verify the sequence of starting CAN and activating notifications
-    HAL_CAN_Start(&hcan1);
-    HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-    HAL_TIM_Base_Start_IT(&htim7);
+    // HAL_CAN_Start(&hcan1);
+    // HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 
     // TODO: Implement initialization functions for the controllers
     IMU_Init_Wrapper();
@@ -159,10 +158,10 @@ int main(void)
     };
     rc_data_ready_semaphore_handle = osSemaphoreNew(1, 0, &rc_sem_attributes);
 
-    const osMessageQueueAttr_t can_rx_queue_attributes = {
-        .name = "canRxQueue"
-    };
-    can_rx_queue_handle = osMessageQueueNew(16, sizeof(uint8_t[sizeof(CAN_RxHeaderTypeDef) + 8]), &can_rx_queue_attributes);
+    // const osMessageQueueAttr_t can_rx_queue_attributes = {
+    //     .name = "canRxQueue"
+    // };
+    // can_rx_queue_handle = osMessageQueueNew(16, sizeof(uint8_t[sizeof(CAN_RxHeaderTypeDef) + 8]), &can_rx_queue_attributes);
 
     const osThreadAttr_t imu_task_attributes = {
         .name = "imuTask",
@@ -171,26 +170,26 @@ int main(void)
     };
     imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
 
-    const osThreadAttr_t control_task_attributes = {
-        .name = "controlTask",
-        .stack_size = 512,
-        .priority = osPriorityAboveNormal
-    };
-    control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
-
-    const osThreadAttr_t can_send_task_attributes = {
-        .name = "canSendTask",
-        .stack_size = 256,
-        .priority = osPriorityNormal
-    };
-    can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
-
-    const osThreadAttr_t can_recv_task_attributes = {
-        .name = "canRecvTask",
-        .stack_size = 256,
-        .priority = osPriorityNormal
-    };
-    can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
+    // const osThreadAttr_t control_task_attributes = {
+    //     .name = "controlTask",
+    //     .stack_size = 512,
+    //     .priority = osPriorityAboveNormal
+    // };
+    // control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
+    //
+    // const osThreadAttr_t can_send_task_attributes = {
+    //     .name = "canSendTask",
+    //     .stack_size = 256,
+    //     .priority = osPriorityNormal
+    // };
+    // can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
+    //
+    // const osThreadAttr_t can_recv_task_attributes = {
+    //     .name = "canRecvTask",
+    //     .stack_size = 256,
+    //     .priority = osPriorityNormal
+    // };
+    // can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
 
     const osThreadAttr_t rc_process_task_attributes = {
         .name = "rcProcessTask",

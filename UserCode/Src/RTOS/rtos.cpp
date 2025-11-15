@@ -15,7 +15,7 @@ constexpr float g_threshold = 0.1f;
 constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
 constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
-Gimbal gimbal_controller;
+// Gimbal gimbal_controller;
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
 RemoteControl rc_controller;
 
@@ -56,71 +56,79 @@ uint8_t rx_data[18];
 
 [[noreturn]] void VCanRecvTask(void* argument)
 {
-    uint8_t queue_message[sizeof(CAN_RxHeaderTypeDef) + 8];
-    CAN_RxHeaderTypeDef rx_header;
-    uint8_t rx_data[8];
+    // uint8_t queue_message[sizeof(CAN_RxHeaderTypeDef) + 8];
+    // CAN_RxHeaderTypeDef rx_header;
+    // uint8_t rx_data[8];
 
     for (;;)
     {
-        osMessageQueueGet(can_rx_queue_handle, &queue_message, nullptr, osWaitForever);
+        // osMessageQueueGet(can_rx_queue_handle, &queue_message, nullptr, osWaitForever);
+        //
+        // memcpy(&rx_header, queue_message, sizeof(CAN_RxHeaderTypeDef));
+        // memcpy(rx_data, queue_message + sizeof(CAN_RxHeaderTypeDef), 8);
+        //
+        // osMutexAcquire(gimbal_mutex_handle, osWaitForever);
+        //
+        // gimbal_controller.UpdateMotorFeedback(rx_header.StdId, rx_data);
+        //
+        // osMutexRelease(gimbal_mutex_handle);
 
-        memcpy(&rx_header, queue_message, sizeof(CAN_RxHeaderTypeDef));
-        memcpy(rx_data, queue_message + sizeof(CAN_RxHeaderTypeDef), 8);
-
-        osMutexAcquire(gimbal_mutex_handle, osWaitForever);
-
-        gimbal_controller.UpdateMotorFeedback(rx_header.StdId, rx_data);
-
-        osMutexRelease(gimbal_mutex_handle);
+        osDelay(1000); // 任务保留，但进入休眠
     }
 }
 
 void VControlTask(void* argument)
 {
-    uint32_t tick = osKernelGetTickCount();
+    // [DISABLED FOR TEST] 任务已在 main.c 禁用 (或未创建)，注释掉内部逻辑
+    // uint32_t tick = osKernelGetTickCount();
     for (;;)
     {
-        RemoteControl::ControlData rc_input = rc_controller.get_control_data();
+        //     RemoteControl::ControlData rc_input = rc_controller.get_control_data();
+        //
+        //     EulerAngle_t imu_attitude = imu_sensor.GetAttitude();
+        //
+        //     Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
+        //
+        //     osMutexAcquire(gimbal_mutex_handle, osWaitForever);
+        //
+        //     gimbal_controller.SetMode(mode);
+        //     gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
+        //     gimbal_controller.SetImuFeedback(imu_attitude);
+        //
+        //     gimbal_controller.RunControlLoop();
+        //
+        //     osMutexRelease(gimbal_mutex_handle);
+        //
+        //     osDelayUntil(tick += 10);
 
-        EulerAngle_t imu_attitude = imu_sensor.GetAttitude();
-
-        Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
-
-        osMutexAcquire(gimbal_mutex_handle, osWaitForever);
-
-        gimbal_controller.SetMode(mode);
-        gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
-        gimbal_controller.SetImuFeedback(imu_attitude);
-
-        gimbal_controller.RunControlLoop();
-
-        osMutexRelease(gimbal_mutex_handle);
-
-        osDelayUntil(tick += 10);
+        osDelay(1000); // 任务保留，但进入休眠
     }
 }
 
 [[noreturn]] void VCanSendTask(void* argument)
 {
-    uint32_t tick = osKernelGetTickCount();
-    CAN_TxHeaderTypeDef tx_header;
-    uint8_t tx_data[8];
-    uint32_t tx_mailbox;
+    // [DISABLED FOR TEST] 任务已在 main.c 禁用，注释掉内部逻辑
+    // uint32_t tick = osKernelGetTickCount();
+    // CAN_TxHeaderTypeDef tx_header;
+    // uint8_t tx_data[8];
+    // uint32_t tx_mailbox;
 
     for (;;)
     {
-        osMutexAcquire(gimbal_mutex_handle, osWaitForever);
+        //     osMutexAcquire(gimbal_mutex_handle, osWaitForever);
+        //
+        //     int16_t yaw_current = gimbal_controller.GetYawMotorCurrent();
+        //     int16_t pitch_current = gimbal_controller.GetPitchMotorCurrent();
+        //
+        //     osMutexRelease(gimbal_mutex_handle);
+        //
+        //     // TODO: Package CAN datas for motor currents
+        //
+        //     HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
+        //
+        //     osDelayUntil(tick += 1);
 
-        int16_t yaw_current = gimbal_controller.GetYawMotorCurrent();
-        int16_t pitch_current = gimbal_controller.GetPitchMotorCurrent();
-
-        osMutexRelease(gimbal_mutex_handle);
-
-        // TODO: Package CAN datas for motor currents
-
-        HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
-
-        osDelayUntil(tick += 1);
+        osDelay(1000); // 任务保留，但进入休眠
     }
 }
 
