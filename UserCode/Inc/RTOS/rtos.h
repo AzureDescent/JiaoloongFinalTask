@@ -8,6 +8,7 @@
 #include "Gimbal.h"
 #include "rc.h"
 #include "imu.h"
+#include "usart.h"
 
 #ifdef __cplusplus
 // TODO: Add and FIX external declarations

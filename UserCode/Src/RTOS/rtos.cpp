@@ -41,16 +41,27 @@ uint8_t rx_data[18];
 
 [[noreturn]] void VRcProcessTask(void* argument)
 {
+    // --- 新增代码：修复启动崩溃 ---
+    // 在任务开始时，手动启动第一次 UART DMA 空闲中断接收。
+    // 此时 RTOS 调度器已经在运行，中断回调是安全的。
+    if (HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18) != HAL_OK)
+    {
+        // 如果启动失败，可以在这里处理错误，例如进入死循环
+        Error_Handler();
+    }
+    // ---------------------------------
+
     for (;;)
     {
+        // 现在这个断点应该可以命中了
         osSemaphoreAcquire(rc_data_ready_semaphore_handle, osWaitForever);
 
         rc_controller.Handle(rx_data);
 
-        // if (rc_controller.IsOffline())
-        // {
-        //     gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
-        // }
+        if (rc_controller.IsOffline())
+        {
+            // gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
+        }
     }
 }
 

@@ -17,20 +17,38 @@
 extern uint8_t rx_buf[18];
 extern uint8_t rx_data[18];
 
+extern RemoteControl rc_controller;
+
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
     if (huart == &huart3)
     {
-        // 1. 首先将 DMA 缓冲区 (rx_buf) 的内容复制到数据处理缓冲区 (rx_data)
-        //    这样可以防止在 VRcProcessTask 处理数据时，DMA 覆盖了旧数据
-        memcpy(rx_data, rx_buf, 18);
-
-        // 2. 重新启动 DMA 接收
-        //    这是至关重要的，否则下一次数据将无法接收
+        // 1. 立即重启 DMA，准备接收下一帧 (这是正确的)
         HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
-        // 3. 释放信号量，通知 VRcProcessTask 任务有新数据需要处理
-        osSemaphoreRelease(rc_data_ready_semaphore_handle);
+        // 2. 获取当前时间（使用 RTOS 的时钟）
+        uint32_t current_tick = osKernelGetTickCount();
+
+        // 3. 恢复 C 板的超时检查逻辑 (使用 500ms 作为阈值)
+        if (current_tick - rc_controller.lastTick > 500)
+        {
+            rc_controller.is_connected = false;
+            // 如果超时（刚启动或信号丢失），不处理数据（不释放信号量）
+        }
+        else // 4. 未超时，数据被认为是有效的
+        {
+            rc_controller.is_connected = true;
+
+            // 复制有效数据
+            memcpy(rx_data, rx_buf, 18);
+
+            // 释放信号量，让 VRcProcessTask 任务去处理
+            osSemaphoreRelease(rc_data_ready_semaphore_handle);
+        }
+
+        // 5. 始终更新 lastTick（模仿 C 板的逻辑）
+        //    这样 IsOffline() 才能正确工作
+        rc_controller.lastTick = current_tick;
     }
 }
 

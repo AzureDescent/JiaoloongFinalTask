@@ -104,8 +104,6 @@ void RemoteControl::DataProcess(uint8_t* pData)
     control_data.pitch_stick = Right_Y;
     control_data.switch_right = switch_right;
     control_data.switch_left = switch_left;
-
-    lastTick = osKernelGetTickCount();
 }
 
 // TODO: Check the Function Logic

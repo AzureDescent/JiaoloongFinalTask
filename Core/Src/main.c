@@ -131,6 +131,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
 
+
     // TODO: Define filter_config appropriately for CAN filter
     // HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     // TODO: Verify the sequence of starting CAN and activating notifications
@@ -141,8 +142,7 @@ int main(void)
     IMU_Init_Wrapper();
     RcInitWrapper();
 
-    extern uint8_t rx_buf[18];
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
