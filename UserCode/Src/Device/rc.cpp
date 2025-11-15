@@ -29,12 +29,12 @@ float RemoteControl::LinearMapping(int in_min, int in_max, int input, float out_
     return output_mapped;
 }
 
-void RemoteControl::Handle(const uint8_t* Data)
+void RemoteControl::Handle(uint8_t* Data)
 {
     DataProcess(Data);
 }
 
-void RemoteControl::DataProcess(const uint8_t* pData)
+void RemoteControl::DataProcess(uint8_t* pData)
 {
     if (pData == nullptr)
     {

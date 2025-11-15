@@ -37,10 +37,10 @@ public:
     uint32_t curTick;
 
     void Init();
-    void Handle(const uint8_t* Data);
+    void Handle(uint8_t* Data);
 
     float LinearMapping(int in_min, int in_max, int input, float out_min, float out_max);
-    void DataProcess(const uint8_t* pData);
+    void DataProcess(uint8_t* pData);
     bool IsOffline();
 
     // 新增：获取处理后数据的 getter 函数
