@@ -204,10 +204,19 @@ void IMU::UpdateAttitude()
 
     euler_rad_.pitch = asinf(sin_pitch);
 
-    if (fabsf(sin_pitch) >= 0.9999f)
+    if (fabsf(sin_pitch) >= 0.9999f) // 万向节死锁
     {
-        euler_rad_.roll = 0.0f;
-        euler_rad_.yaw = atan2f(-2.0f * (q_[1] * q_[3] - q_[0] * q_[2]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[3] * q_[3]));
+        euler_rad_.roll = 0.0f; // 按约定设为 0
+
+        // 正确处理奇点
+        if (sin_pitch > 0.0f) // Pitch = +90 度
+        {
+            euler_rad_.yaw = 2.0f * atan2f(q_[1], q_[0]); // 2 * atan2(x, w)
+        }
+        else // Pitch = -90 度
+        {
+            euler_rad_.yaw = -2.0f * atan2f(q_[1], q_[0]); // -2 * atan2(x, w)
+        }
     }
     else
     {

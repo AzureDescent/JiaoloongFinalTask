@@ -194,14 +194,14 @@ int main(void)
 
     const osThreadAttr_t rc_process_task_attributes = {
         .name = "rcProcessTask",
-        .stack_size = 256,
+        .stack_size = 1024 * 4,
         .priority = osPriorityNormal
     };
     rc_process_task_handle = osThreadNew(VRcProcessTask, NULL, &rc_process_task_attributes);
 
     const osThreadAttr_t iwdg_task_attributes = {
         .name = "iwdgTask",
-        .stack_size = 128,
+        .stack_size = 1024,
         .priority = osPriorityLow
     };
     iwdg_task_handle = osThreadNew(VIwdgTask, NULL, &iwdg_task_attributes);
