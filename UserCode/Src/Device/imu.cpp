@@ -129,7 +129,7 @@ void IMU::ReadSensor()
 
     taskENTER_CRITICAL();
     Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
-    taskENTER_CRITICAL();
+    taskEXIT_CRITICAL();
 
     raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
