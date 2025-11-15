@@ -129,7 +129,7 @@ void IMU::ReadSensor()
 
     taskENTER_CRITICAL();
     Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
-    taskENTER_CRITICAL();
+    taskEXIT_CRITICAL();
 
     raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
@@ -206,8 +206,18 @@ void IMU::UpdateAttitude()
 
     if (fabsf(sin_pitch) >= 0.9999f)
     {
-        euler_rad_.roll = 0.0f;
-        euler_rad_.yaw = atan2f(-2.0f * (q_[1] * q_[3] - q_[0] * q_[2]), 1.0f - 2.0f * (q_[1] * q_[1] + q_[3] * q_[3]));
+        // 进入万向节死锁状态
+        euler_rad_.roll = 0.0f; // 按惯例设置 roll 为 0
+        if (sin_pitch > 0.0f) // Pitch = +90 degrees
+        {
+            // Yaw + Roll = 2 * atan2(x, w)
+            euler_rad_.yaw = 2.0f * atan2f(q_[1], q_[0]);
+        }
+        else // Pitch = -90 degrees
+        {
+            // Yaw - Roll = -2 * atan2(x, w)
+            euler_rad_.yaw = -2.0f * atan2f(q_[1], q_[0]);
+        }
     }
     else
     {
