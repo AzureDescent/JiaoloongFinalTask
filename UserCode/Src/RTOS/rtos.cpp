@@ -19,8 +19,6 @@ Gimbal gimbal_controller;
 IMU imu_sensor(dt, kg, g_threshold, r_imu, gyro_bias);
 RemoteControl rc_controller;
 
-// 定义遥控器 DMA 接收缓冲区和数据处理缓冲区
-// callback.cpp 将通过 extern 引用它们
 uint8_t rx_buf[18];
 uint8_t rx_data[18];
 
@@ -97,7 +95,7 @@ void VControlTask(void* argument)
         gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
         gimbal_controller.SetImuFeedback(imu_attitude);
 
-        gimbal_controller.RunControlLoop();
+        gimbal_controller.Handle();
 
         osMutexRelease(gimbal_mutex_handle);
 
@@ -116,8 +114,8 @@ void VControlTask(void* argument)
     {
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
-        int16_t yaw_current = gimbal_controller.GetYawMotorCurrent();
-        int16_t pitch_current = gimbal_controller.GetPitchMotorCurrent();
+        int16_t yaw_current = gimbal_controller.GetYawCurrentToSend();
+        int16_t pitch_current = gimbal_controller.GetPitchCurrentToSend();
 
         osMutexRelease(gimbal_mutex_handle);
 
