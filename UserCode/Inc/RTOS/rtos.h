@@ -18,7 +18,8 @@ extern RemoteControl rc_controller;
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 // TODO: Add and FIX task handle declarations
@@ -36,14 +37,14 @@ extern osSemaphoreId_t imu_data_ready_semaphore_handle;
 
 extern osMutexId_t gimbal_mutex_handle;
 
-void VControlTask(void *argument);
-[[noreturn]] void VImuTask(void *argument);
-[[noreturn]] void VCanSendTask(void *argument);
-[[noreturn]] void VCanRecvTask(void *argument);
-[[noreturn]] void VRcProcessTask(void *argument);
-[[noreturn]] void VIwdgTask(void *argument);
+void VControlTask(void* argument);
+[[noreturn]] void VImuTask(void* argument);
+[[noreturn]] void VCanSendTask(void* argument);
+[[noreturn]] void VCanRecvTask(void* argument);
+[[noreturn]] void VRcProcessTask(void* argument);
+[[noreturn]] void VIwdgTask(void* argument);
 
-    #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 

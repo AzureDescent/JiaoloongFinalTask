@@ -22,6 +22,27 @@ RemoteControl rc_controller;
 uint8_t rx_buf[18];
 uint8_t rx_data[18];
 
+
+void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, uint8_t* data_2fe)
+{
+    const uint8_t high_byte = (current >> 8) & 0xFF;
+    const uint8_t low_byte = current & 0xFF;
+    int offset;
+
+    if (id >= 1 && id <= 4)
+    {
+        offset = (id - 1) * 2;
+        data_1fe[offset] = high_byte;
+        data_1fe[offset + 1] = low_byte;
+    }
+    else if (id >= 5 && id <= 7)
+    {
+        offset = (id - 5) * 2;
+        data_2fe[offset] = high_byte;
+        data_2fe[offset + 1] = low_byte;
+    }
+}
+
 [[noreturn]] void VImuTask(void* argument)
 {
     uint32_t tick = osKernelGetTickCount();
@@ -158,26 +179,6 @@ void VControlTask(void* argument)
         HAL_IWDG_Refresh(&hiwdg);
 
         osDelay(1000);
-    }
-}
-
-void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, uint8_t* data_2fe)
-{
-    const uint8_t high_byte = (current >> 8) & 0xFF;
-    const uint8_t low_byte = current & 0xFF;
-    int offset;
-
-    if (id >= 1 && id <= 4)
-    {
-        offset = (id - 1) * 2;
-        data_1fe[offset] = high_byte;
-        data_1fe[offset + 1] = low_byte;
-    }
-    else if (id >= 5 && id <= 7)
-    {
-        offset = (id - 5) * 2;
-        data_2fe[offset] = high_byte;
-        data_2fe[offset + 1] = low_byte;
     }
 }
 

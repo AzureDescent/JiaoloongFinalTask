@@ -3,20 +3,29 @@
 //
 #include "motor.h"
 
-Motor::Motor() :
-    ratio_(1.0f), // 默认比例
-    angle_(0.0f), delta_angle_(0.0f),
-    ecd_angle_(0.0f), last_ecd_angle_(0.0f), delta_ecd_angle_(0.0f),
-    rotate_speed_(0.0f), current_(0.0f), temp_(0.0f)
-{}
+Motor::Motor():
+    ratio_(1.0f),
+    // 默认比例
+    angle_(0.0f),
+    delta_angle_(0.0f),
+    ecd_angle_(0.0f),
+    last_ecd_angle_(0.0f),
+    delta_ecd_angle_(0.0f),
+    rotate_speed_(0.0f),
+    current_(0.0f),
+    temp_(0.0f) {}
 
 // 构造函数
-Motor::Motor(float ratio) :
+Motor::Motor(float ratio):
     ratio_(ratio),
-    angle_(0.0f), delta_angle_(0.0f),
-    ecd_angle_(0.0f), last_ecd_angle_(0.0f), delta_ecd_angle_(0.0f),
-    rotate_speed_(0.0f), current_(0.0f), temp_(0.0f)
-{}
+    angle_(0.0f),
+    delta_angle_(0.0f),
+    ecd_angle_(0.0f),
+    last_ecd_angle_(0.0f),
+    delta_ecd_angle_(0.0f),
+    rotate_speed_(0.0f),
+    current_(0.0f),
+    temp_(0.0f) {}
 
 void Motor::Decode(const uint8_t* data)
 {
@@ -50,7 +59,8 @@ void Motor::Decode(const uint8_t* data)
 
 float Motor::LinearMapping(int in, int in_min, int in_max, float out_min, float out_max)
 {
-    if (in_max == in_min) {
+    if (in_max == in_min)
+    {
         return out_min;
     }
     const float output_mapped = out_min + (out_max - out_min) * (in - in_min) / (float)(in_max - in_min);

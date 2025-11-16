@@ -18,15 +18,30 @@ public:
 
     void Decode(const uint8_t* data);
 
-    float GetAngle() const { return angle_; }
+    float GetAngle() const
+    {
+        return angle_;
+    }
 
-    float GetSpeed() const { return rotate_speed_; }
+    float GetSpeed() const
+    {
+        return rotate_speed_;
+    }
 
-    float GetCurrent() const { return current_; }
+    float GetCurrent() const
+    {
+        return current_;
+    }
 
-    float GetTemp() const { return temp_; }
+    float GetTemp() const
+    {
+        return temp_;
+    }
 
-    float GetEcdAngle() const { return ecd_angle_; }
+    float GetEcdAngle() const
+    {
+        return ecd_angle_;
+    }
 
 private:
     static float LinearMapping(int in, int in_min, int in_max, float out_min, float out_max);

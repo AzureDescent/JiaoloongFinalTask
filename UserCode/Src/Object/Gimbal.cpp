@@ -34,8 +34,7 @@ float CalculateFeedforward(float current_angle)
 
 Gimbal::Gimbal():
     pitch_motor_(1.0f),
-    yaw_motor_(1.0f)
-{}
+    yaw_motor_(1.0f) {}
 
 void Gimbal::Init()
 {
@@ -63,7 +62,10 @@ void Gimbal::YawMotorCallback(const uint8_t* data)
 
 void Gimbal::SetMode(Gimbal::Mode mode)
 {
-    if (current_mode_ == mode) return;
+    if (current_mode_ == mode)
+    {
+        return;
+    }
 
     current_mode_ = mode;
 

@@ -37,8 +37,15 @@ public:
     int16_t GetPitchCurrentToSend();
     int16_t GetYawCurrentToSend();
 
-    uint32_t GetPitchMotorID() const { return PITCH_MOTOR_ID; }
-    uint32_t GetYawMotorID() const { return YAW_MOTOR_ID; }
+    uint32_t GetPitchMotorID() const
+    {
+        return PITCH_MOTOR_ID;
+    }
+
+    uint32_t GetYawMotorID() const
+    {
+        return YAW_MOTOR_ID;
+    }
 
 private:
     Motor pitch_motor_;

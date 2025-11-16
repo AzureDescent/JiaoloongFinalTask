@@ -90,16 +90,13 @@ private:
 #endif
 
 #ifdef __cplusplus
-extern "C" {
-    #endif
+extern "C"
+{
+#endif
 
-    void IMU_Init_Wrapper();
-    // 新增一个 C 语言函数原型，用于获取 IMU 姿态角（可选，但推荐）
-    // 注意：如果 C 文件需要读取姿态角，不能直接返回 C++ struct，需要定义一个 C 语言函数
-    // TODO: Implement EulerAngle_t IMU_GetAttitude_Wrapper();
-    // EulerAngle_t IMU_GetAttitude_Wrapper(); // 暂不实现，以简化修复流程
+void IMU_Init_Wrapper();
 
-    #ifdef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
