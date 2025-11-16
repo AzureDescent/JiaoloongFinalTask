@@ -129,6 +129,7 @@ void Gimbal::RunControlLoop()
  */
 void Gimbal::UpdateMotorFeedback(uint16_t motor_id, uint8_t* data)
 {
+    // TODO: Check the Motor ID
     if (motor_id == YAW_MOTOR_ID)
     {
         yaw_motor.Decode(data);

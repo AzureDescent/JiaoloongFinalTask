@@ -5,26 +5,17 @@
 
 Motor::Motor()
 {
-    feedback = {0, 0, 0, 0};
+
 }
 
 // TODO: Transplant and Check the Variables with their Definitions and Functions
-void Motor::Decode(const uint8_t* data)
+void Motor::Decode(uint8_t* data)
 {
 
 }
 
-Motor::FeedbackData Motor::GetFeedback() const
+float LinearMapping(int in, int in_min, int in_max, float out_min, float out_max)
 {
-    return feedback;
-}
-
-float Motor::GetSpeed() const
-{
-    return static_cast<float>(feedback.speed);
-}
-
-float Motor::GetAngle() const
-{
-    return static_cast<float>(feedback.angle);
+    const float output_mapped = out_min + (out_max - out_min) * (in - in_min) / (in_max - in_min);
+    return output_mapped;
 }

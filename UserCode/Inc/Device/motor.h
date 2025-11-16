@@ -12,25 +12,14 @@ class Motor
 {
 public:
     // TODO: Transplant and Check the Variables with their Definitions and Functions
-    struct FeedbackData
-    {
-        int16_t angle;
-        int16_t speed;
-        int16_t current;
-        uint8_t temperature;
-    };
 
     Motor();
 
-    FeedbackData GetFeedback() const;
+    void Decode(uint8_t* data);
 
-    void Decode(const uint8_t* data);
-
-    float GetSpeed() const;
-    float GetAngle() const;
+    float LinearMapping(int in, int in_min, int in_max, float out_min, float out_max);
 
 private:
-    FeedbackData feedback;
 };
 #endif
 
