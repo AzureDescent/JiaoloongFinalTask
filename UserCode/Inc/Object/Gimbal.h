@@ -44,10 +44,9 @@ private:
     float pitch_output_torque_ = 0.0f;
     float yaw_output_torque_ = 0.0f;
 
-    // TODO: 检查M6020 参数
-    const float M6020_RATIO = 36.0f;
-    const float M6020_TORQUE_CONSTANT = 0.5f;
-    const float M6020_MAX_CURRENT = 25.0f;
+    const float M6020_RATIO = 1.0f;
+    const float M6020_TORQUE_CONSTANT = 0.741f;
+    const float M6020_MAX_CURRENT = 1.62f;
 };
 #endif
 

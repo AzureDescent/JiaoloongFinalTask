@@ -27,7 +27,6 @@ void Motor::Decode(const uint8_t* data)
         delta_ecd_angle_ += 360.0f;
     }
 
-    // 3. 换算为输出轴角度 (M6020 减速比为 36:1)
     delta_angle_ = delta_ecd_angle_ / ratio_;
     angle_ += delta_angle_;
 

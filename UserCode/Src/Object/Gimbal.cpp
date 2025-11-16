@@ -31,7 +31,6 @@ float CalculateFeedforward(float current_angle)
 
 Gimbal::Gimbal():
     pitch_motor_(M6020_RATIO),
-    // M6020 减速比 36:1
     yaw_motor_(M6020_RATIO)
 {}
 
