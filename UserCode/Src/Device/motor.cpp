@@ -3,6 +3,13 @@
 //
 #include "motor.h"
 
+Motor::Motor() :
+    ratio_(1.0f), // 默认比例
+    angle_(0.0f), delta_angle_(0.0f),
+    ecd_angle_(0.0f), last_ecd_angle_(0.0f), delta_ecd_angle_(0.0f),
+    rotate_speed_(0.0f), current_(0.0f), temp_(0.0f)
+{}
+
 // 构造函数
 Motor::Motor(float ratio) :
     ratio_(ratio),
