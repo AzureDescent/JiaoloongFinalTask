@@ -114,9 +114,7 @@ void IMU::ReadSensor()
         return;
     }
 
-    taskENTER_CRITICAL();
     Bmi088AccelReadReg(BMI088_ACC_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_accel_data), 6);
-    taskEXIT_CRITICAL();
 
     raw_data_.accel[0] = static_cast<float>(raw_accel_data[0]) / 32768.0f * accel_scale_factor_;
     raw_data_.accel[1] = static_cast<float>(raw_accel_data[1]) / 32768.0f * accel_scale_factor_;
@@ -127,9 +125,7 @@ void IMU::ReadSensor()
         return;
     }
 
-    taskENTER_CRITICAL();
     Bmi088GyroReadReg(BMI088_GYRO_X_LSB_REG, reinterpret_cast<uint8_t*>(raw_gyro_data), 6);
-    taskEXIT_CRITICAL();
 
     raw_data_.gyro[0] = static_cast<float>(raw_gyro_data[0]) / 32768.0f * gyro_scale_factor_;
     raw_data_.gyro[1] = static_cast<float>(raw_gyro_data[1]) / 32768.0f * gyro_scale_factor_;
@@ -234,9 +230,11 @@ void IMU::UpdateAttitude()
         return;
     }
 
+    taskENTER_CRITICAL();
     euler_deg_.roll = euler_rad_.roll * (180.0f / M_PI);
     euler_deg_.pitch = euler_rad_.pitch * (180.0f / M_PI);
     euler_deg_.yaw = euler_rad_.yaw * (180.0f / M_PI);
+    taskEXIT_CRITICAL();
 
     memcpy(gyro_world_, mahony_.ww_, 3 * sizeof(float));
     memcpy(accel_world_, mahony_.aw_, 3 * sizeof(float));
@@ -249,5 +247,9 @@ void IMU::UpdateAttitude()
 
 EulerAngle_t IMU::GetAttitude() const
 {
+    EulerAngle_t temp;
+    taskENTER_CRITICAL();
+    temp = euler_deg_;
+    taskEXIT_CRITICAL();
     return euler_deg_;
 }

@@ -71,7 +71,9 @@ void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, ui
 
         if (rc_controller.IsOffline())
         {
+            osMutexAcquire(gimbal_mutex_handle, osWaitForever);
             gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
+            osMutexRelease(gimbal_mutex_handle);
         }
     }
 }

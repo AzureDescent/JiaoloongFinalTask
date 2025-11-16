@@ -22,7 +22,6 @@ extern "C"
 {
 #endif
 
-// TODO: Add and FIX task handle declarations
 extern osThreadId_t control_task_handle;
 extern osThreadId_t imu_task_handle;
 extern osThreadId_t can_send_task_handle;

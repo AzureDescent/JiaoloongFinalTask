@@ -130,13 +130,10 @@ int main(void)
     /* USER CODE BEGIN 2 */
     HAL_TIM_Base_Start_IT(&htim7);
 
-    // TODO: Define filter_config appropriately for CAN filter
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
-    // TODO: Verify the sequence of starting CAN and activating notifications
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 
-    // TODO: Implement initialization functions for the controllers
     IMU_Init_Wrapper();
     RcInitWrapper();
 
@@ -175,7 +172,7 @@ int main(void)
         .stack_size = 1024 * 4,
         .priority = osPriorityAboveNormal
     };
-    control_task_handle = osThreadNew(VCanRecvTask, NULL, &control_task_attributes);
+    control_task_handle = osThreadNew(VControlTask, NULL, &control_task_attributes);
 
     const osThreadAttr_t can_send_task_attributes = {
         .name = "canSendTask",
