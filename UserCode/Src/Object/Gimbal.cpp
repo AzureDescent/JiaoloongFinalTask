@@ -2,166 +2,92 @@
 // Created by DrownFish on 2025/11/4.
 //
 #include "Gimbal.h"
+#include <cmath>
 
-Gimbal::Gimbal() : current_mode(GIMBAL_MODE_OFF), yaw_current_out(0), pitch_current_out(0)
-{
-    // TODO: 在 Task 3 中，初始化 PID 控制器参数
-    // 参考以往文件中的 PID 初始化代码
-}
 
-/**
- * @brief 根据遥控器右拨杆状态决定云台模式
- * @param rc_switch
- * @return Gimbal::Mode
- */
-Gimbal::Mode Gimbal::DetermineMode(SwitchStatus rc_switch)
+int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max_current)
 {
-    switch (rc_switch)
+    float current = torque / torque_constant;
+
+    if (current > max_current)
     {
-        case UP:
-            return GIMBAL_MODE_START;
-        case DOWN:
-            return GIMBAL_MODE_OFF;
-        case MID:
-        default:
-            return GIMBAL_MODE_OFF;
+        current = max_current;
     }
-}
-
-/**
- * @brief 设置云台的当前模式
- * @param mode
- */
-void Gimbal::SetMode(Mode mode)
-{
-    current_mode = mode;
-
-    // TODO: 在 Task 3 中，添加Gimbal逻辑
-    // 如果模式从 OFF 切换到 START，重置 PID 积分项
-    if (mode == GIMBAL_MODE_OFF)
+    else if (current < -max_current)
     {
-        yaw_pos_pid.Clear();
-        yaw_speed_pid.Clear();
-        pitch_pos_pid.Clear();
-        pitch_speed_pid.Clear();
-
-        yaw_current_out = 0;
-        pitch_current_out = 0;
-    }
-}
-
-/**
- * @brief 设置 PID 控制的目标值
- * @param yaw_target_stick   [-1.0f, 1.0f]
- * @param pitch_target_stick [-1.0f, 1.0f]
- */
-void Gimbal::SetPIDTargets(float yaw_target_stick, float pitch_target_stick)
-{
-    if (current_mode == GIMBAL_MODE_OFF)
-    {
-        return;
+        current = -max_current;
     }
 
-    // --- Task 3: PID 控制逻辑 START ---
-    // 这是你实现 Task 3 (PID) 的入口点。
-    // 你需要将摇杆的输入（[-1, 1]）转换为角度或速度目标值。
-
-    // S：
-    // float yaw_target_speed = yaw_target_stick * MAX_YAW_SPEED;
-    // yaw_speed_pid.SetTarget(yaw_target_speed);
-
-    // P：
-    // float yaw_target_angle_increment = yaw_target_stick * YAW_SENSITIVITY * dt;
-    // yaw_angle_pid.AddTarget(yaw_target_angle_increment);
+    return static_cast<int16_t>(current * 16384.0f / 2.0f);
 }
 
-/**
- * @brief 设置 IMU 反馈数据
- * @param imu_attitude
- */
-void Gimbal::SetImuFeedback(EulerAngle_t imu_attitude)
+float CalculateFeedforward(float current_angle)
 {
-    if (current_mode == GIMBAL_MODE_OFF)
-    {
-        return;
-    }
-
-    // TODO: 在 Task 3 中，将 IMU 数据喂给 PID 控制器
-    // e.g. yaw_angle_pid.SetFeedback(imu_attitude.yaw);
-    // e.g. pitch_angle_pid.SetFeedback(imu_attitude.pitch);
+    //TODO: 拟合前馈力矩
+    static float torque_tmp = CalcTorque(current_angle);
+    return torque_tmp;
 }
 
-/**
- * @brief 主控制循环，在此处运行 PID 计算
- */
-void Gimbal::RunControlLoop()
-{
-    if (current_mode == GIMBAL_MODE_OFF)
-    {
-        yaw_current_out = 0;
-        pitch_current_out = 0;
-        return;
-    }
 
-    // TODO: 在 Task 3 中，运行 PID 计算
-    // 示例：
-    // 1. 计算 Pitch (双环)
-    // pitch_angle_pid.Calculate();
-    // pitch_speed_pid.SetTarget(pitch_angle_pid.GetOutput());
-    // pitch_speed_pid.SetFeedback(pitch_motor.GetSpeed()); // 假设电机有速度反馈
-    // pitch_speed_pid.Calculate();
-    //
-    // 2. 计算 Yaw (类似)
-    // ...
-    //
-    // 3. (可选) 重力前馈 [cite: 66]
-    // float pitch_feedforward = CalculateGravityFeedforward(pitch_motor.GetAngle());
-    //
-    // 4. 设置最终电流
-    // int16_t pitch_current = (int16_t)pitch_speed_pid.GetOutput() + (int16_t)pitch_feedforward;
-    // SetPitchMotorCurrent(pitch_current);
+Gimbal::Gimbal():
+    pitch_motor_(M6020_RATIO),
+    // M6020 减速比 36:1
+    yaw_motor_(M6020_RATIO)
+{}
+
+void Gimbal::Init()
+{
+    //TODO: Verify the i_max, out_max
+
+    pitch_speed_pid_ = PID(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+    pitch_angle_pid_ = PID(0.f, 0.0f, 0.f, 0.f, 0.f, 0.f);
+
+    yaw_speed_pid_ = PID(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+    yaw_angle_pid_ = PID(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
 }
 
-/**
- * @brief CAN 回调函数会调用此函数来更新电机反馈
- * @param motor_id
- * @param data
- */
-void Gimbal::UpdateMotorFeedback(uint16_t motor_id, uint8_t* data)
+void Gimbal::PitchMotorCallback(const uint8_t* data)
 {
-    // TODO: Check the Motor ID
-    if (motor_id == YAW_MOTOR_ID)
-    {
-        yaw_motor.Decode(data);
-    }
-    else if (motor_id == PITCH_MOTOR_ID)
-    {
-        pitch_motor.Decode(data);
-    }
+    pitch_motor_.Decode(data);
 }
 
-/**
- * @brief VCanSendTask 会调用此函数获取要发送的电流
- * @return
- */
-int16_t Gimbal::GetYawMotorCurrent()
+void Gimbal::YawMotorCallback(const uint8_t* data)
 {
-    if (current_mode == GIMBAL_MODE_OFF) return 0;
-
-    // TODO: 从 PID 计算结果中返回 Yaw 电机电流
-    // return (int16_t)yaw_speed_pid.GetOutput();
-    return 0; // 桩实现
+    yaw_motor_.Decode(data);
 }
 
-/**
- * @brief VCanSendTask 会调用此函数获取要发送的电流
- * @return
- */
-int16_t Gimbal::GetPitchMotorCurrent()
+void Gimbal::Handle()
 {
-    if (current_mode == GIMBAL_MODE_OFF) return 0;
+    float fdb_angle = pitch_motor_.GetAngle();
+    float fdb_speed = pitch_motor_.GetSpeed();
 
-    // TODO: 从 PID 计算结果中返回 Pitch 电机电流
-    // return (int16_t)pitch_speed_pid.GetOutput();
-    return 0; // 桩实现
+    float target_speed = pitch_angle_pid_.Calc(target_pitch_angle_, fdb_angle);
+
+    float output_torque = pitch_speed_pid_.Calc(target_speed, fdb_speed);
+
+    float feedforward_torque = CalculateFeedforward(fdb_angle);
+
+    pitch_output_torque_ = output_torque + feedforward_torque;
+
+
+    fdb_angle = yaw_motor_.GetAngle();
+    fdb_speed = yaw_motor_.GetSpeed();
+
+    target_speed = yaw_angle_pid_.Calc(target_yaw_angle_, fdb_angle);
+
+    output_torque = yaw_speed_pid_.Calc(target_speed, fdb_speed);
+
+    feedforward_torque = CalculateFeedforward(fdb_angle);
+
+    yaw_output_torque_ = output_torque + feedforward_torque;
+}
+
+int16_t Gimbal::GetPitchCurrentToSend()
+{
+    return ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+}
+
+int16_t Gimbal::GetYawCurrentToSend()
+{
+    return ConvertTorqueToCanCurrent(yaw_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
 }

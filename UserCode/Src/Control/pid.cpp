@@ -77,4 +77,5 @@ float PID::Calc(float ref, float fdb)
 void PID::Clear()
 {
     err_sum_ = 0.0f;
+    iout_ = 0.0f;
 }

@@ -14,45 +14,40 @@
 class Gimbal
 {
 public:
-    enum Mode
-    {
-        GIMBAL_MODE_OFF,
-        GIMBAL_MODE_CUSTOM,
-        GIMBAL_MODE_START,
-    };
-
     Gimbal();
+    void Init();
+    void Handle(); // 主控制循环
 
-    void SetMode(Mode mode);
+    // 外部设置目标值
+    void SetTargetAngle(float pitch, float yaw);
 
-    void SetPIDTargets(float yaw_target_stick, float pitch_target_stick);
+    // CAN 消息回调
+    void PitchMotorCallback(const uint8_t* data);
+    void YawMotorCallback(const uint8_t* data);
 
-    void SetImuFeedback(EulerAngle_t imu_attitude);
-
-    Mode DetermineMode(SwitchStatus rc_switch);
-
-    void RunControlLoop();
-
-    void UpdateMotorFeedback(uint16_t motor_id, uint8_t* data);
-    int16_t GetYawMotorCurrent();
-    int16_t GetPitchMotorCurrent();
+    // 获取要发送的电流
+    int16_t GetPitchCurrentToSend();
+    int16_t GetYawCurrentToSend();
 
 private:
-    Mode current_mode;
+    Motor pitch_motor_;
+    Motor yaw_motor_;
 
-    Motor yaw_motor;
-    Motor pitch_motor;
+    PID pitch_angle_pid_;
+    PID pitch_speed_pid_;
+    PID yaw_angle_pid_;
+    PID yaw_speed_pid_;
 
-    PID yaw_pos_pid;
-    PID yaw_speed_pid;
-    PID pitch_pos_pid;
-    PID pitch_speed_pid;
+    float target_pitch_angle_ = 0.0f;
+    float target_yaw_angle_ = 0.0f;
 
-    int16_t yaw_current_out;
-    int16_t pitch_current_out;
+    float pitch_output_torque_ = 0.0f;
+    float yaw_output_torque_ = 0.0f;
 
-    const uint16_t YAW_MOTOR_ID = 0x201;
-    const uint16_t PITCH_MOTOR_ID = 0x202;
+    // TODO: 检查M6020 参数
+    const float M6020_RATIO = 36.0f;
+    const float M6020_TORQUE_CONSTANT = 0.5f;
+    const float M6020_MAX_CURRENT = 25.0f;
 };
 #endif
 
