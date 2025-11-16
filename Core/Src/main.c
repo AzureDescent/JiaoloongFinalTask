@@ -135,7 +135,7 @@ int main(void)
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
 
-    IMU_Init_Wrapper();
+    ImuInitWrapper();
     RcInitWrapper();
 
     /* USER CODE END 2 */

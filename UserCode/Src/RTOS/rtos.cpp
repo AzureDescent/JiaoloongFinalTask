@@ -158,7 +158,7 @@ void VControlTask(void* argument)
         .DLC = 8,
         .TransmitGlobalTime = DISABLE
     };
-    uint8_t tx_data_2FE[8];
+    uint8_t tx_data_2_fe[8];
 
     for (;;)
     {
@@ -169,13 +169,13 @@ void VControlTask(void* argument)
         int yaw_id = gimbal_controller.GetYawMotorID() - 0x204;
 
         memset(tx_data_1_fe, 0, sizeof(tx_data_1_fe));
-        memset(tx_data_2FE, 0, sizeof(tx_data_2FE));
+        memset(tx_data_2_fe, 0, sizeof(tx_data_2_fe));
 
-        FillMotorCurrent(pitch_id, pitch_current, tx_data_1_fe, tx_data_2FE);
-        FillMotorCurrent(yaw_id, yaw_current, tx_data_1_fe, tx_data_2FE);
+        FillMotorCurrent(pitch_id, pitch_current, tx_data_1_fe, tx_data_2_fe);
+        FillMotorCurrent(yaw_id, yaw_current, tx_data_1_fe, tx_data_2_fe);
 
         HAL_CAN_AddTxMessage(&hcan1, &tx_header_1_fe, tx_data_1_fe, &tx_mailbox);
-        HAL_CAN_AddTxMessage(&hcan1, &tx_header_2_fe, tx_data_2FE, &tx_mailbox);
+        HAL_CAN_AddTxMessage(&hcan1, &tx_header_2_fe, tx_data_2_fe, &tx_mailbox);
 
         osDelayUntil(tick += 1);
     }
@@ -191,7 +191,7 @@ void VControlTask(void* argument)
     }
 }
 
-extern "C" void IMU_Init_Wrapper()
+extern "C" void ImuInitWrapper()
 {
     EulerAngle_t init_angle(0, 0, 0);
     imu_sensor.Init(init_angle);

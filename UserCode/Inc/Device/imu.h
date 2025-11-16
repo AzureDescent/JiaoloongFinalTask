@@ -94,7 +94,7 @@ extern "C"
 {
 #endif
 
-void IMU_Init_Wrapper();
+void ImuInitWrapper();
 
 #ifdef __cplusplus
 }
