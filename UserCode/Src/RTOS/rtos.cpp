@@ -110,9 +110,11 @@ void VControlTask(void* argument)
 
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
-        gimbal_controller.SetMode(mode);
-        gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
         gimbal_controller.SetImuFeedback(imu_attitude);
+
+        gimbal_controller.SetMode(mode);
+
+        gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
 
         gimbal_controller.Handle();
 

@@ -12,7 +12,6 @@
 class Motor
 {
 public:
-    // TODO: Check the ratio
     explicit Motor(float ratio);
     Motor(); // 默认构造函数
 

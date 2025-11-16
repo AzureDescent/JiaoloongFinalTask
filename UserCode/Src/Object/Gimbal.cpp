@@ -67,6 +67,11 @@ void Gimbal::SetMode(Gimbal::Mode mode)
         return;
     }
 
+    if (current_mode_ == GIMBAL_MODE_OFF && (mode == GIMBAL_MODE_PID || mode == GIMBAL_MODE_FEEDFORWARD_TEST))
+    {
+        target_pitch_angle_ = imu_feedback_.pitch;
+        target_yaw_angle_ = yaw_motor_.GetAngle();
+    }
     current_mode_ = mode;
 
     pitch_angle_pid_.Reset();
@@ -109,7 +114,6 @@ void Gimbal::UpdateMotorFeedback(uint32_t std_id, const uint8_t* data)
     }
 }
 
-// (新增) 实现 rtos.cpp 调用的函数
 void Gimbal::SetImuFeedback(const EulerAngle_t& imu_attitude)
 {
     imu_feedback_ = imu_attitude;
@@ -122,7 +126,7 @@ void Gimbal::SetPIDTargets(float yaw_stick, float pitch_stick)
     if (current_mode_ == GIMBAL_MODE_PID || current_mode_ == GIMBAL_MODE_FEEDFORWARD_TEST)
     {
         float yaw_speed = 0.0f;
-        if (std::abs(yaw_stick) > RC_STICK_DEADZONE)
+        if (std::fabs(yaw_stick) > RC_STICK_DEADZONE)
         {
             yaw_speed = yaw_stick * RC_YAW_SPEED_SCALE;
         }
@@ -134,6 +138,15 @@ void Gimbal::SetPIDTargets(float yaw_stick, float pitch_stick)
             pitch_speed = pitch_stick * RC_PITCH_SPEED_SCALE;
         }
         target_pitch_angle_ += pitch_speed * dt;
+
+        if (target_pitch_angle_ > PITCH_MAX_ANGLE)
+        {
+            target_pitch_angle_ = PITCH_MAX_ANGLE;
+        }
+        else if (target_pitch_angle_ < PITCH_MIN_ANGLE)
+        {
+            target_pitch_angle_ = PITCH_MIN_ANGLE;
+        }
     }
 }
 

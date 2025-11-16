@@ -9,12 +9,12 @@
 class PID
 {
 public:
-    PID(void):
+    PID():
         PID(0, 0, 0, 0, 0) {}
 
     PID(float kp, float ki, float kd, float i_max, float out_max, float d_filter_k = 1);
 
-    void Reset(void);
+    void Reset();
     float Calc(float ref, float fdb);
 
     float kp_, ki_, kd_, d_filter_k_;

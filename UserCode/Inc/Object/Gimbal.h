@@ -69,6 +69,9 @@ private:
     const uint32_t PITCH_MOTOR_ID = 0x205;
     const uint32_t YAW_MOTOR_ID = 0x206;
 
+    const float PITCH_MAX_ANGLE = 40.0f;
+    const float PITCH_MIN_ANGLE = -40.0f;
+
     // TODO: 确认遥控器参数
     const float RC_STICK_DEADZONE = 0.05f;
     const float RC_YAW_SPEED_SCALE = 180.0f;

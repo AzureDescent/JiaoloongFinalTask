@@ -5,7 +5,6 @@
 
 Motor::Motor():
     ratio_(1.0f),
-    // 默认比例
     angle_(0.0f),
     delta_angle_(0.0f),
     ecd_angle_(0.0f),
