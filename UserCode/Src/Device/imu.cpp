@@ -204,7 +204,7 @@ void IMU::UpdateAttitude()
 
     euler_rad_.pitch = asinf(sin_pitch);
 
-    if (fabsf(sin_pitch) >= 0.9999f) // 万向节死锁
+    if (fabsf(sin_pitch) >= 0.99f) // 万向节死锁
     {
         euler_rad_.roll = 0.0f; // 按约定设为 0
 
