@@ -19,7 +19,7 @@ int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max
         current = -max_current;
     }
 
-    return static_cast<int16_t>(current * 16384.0f / 2.0f);
+    return static_cast<int16_t>(current * 16384.0f / 3.0f);
 }
 
 float CalculateFeedforward(float current_angle)

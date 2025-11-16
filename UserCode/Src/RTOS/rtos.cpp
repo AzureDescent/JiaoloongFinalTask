@@ -31,8 +31,6 @@ uint8_t rx_data[18];
 
         imu_sensor.UpdateAttitude();
 
-        // TODO: Sync with Control Task if necessary
-
         osDelayUntil(tick += 1);
     }
 }
@@ -106,22 +104,48 @@ void VControlTask(void* argument)
 [[noreturn]] void VCanSendTask(void* argument)
 {
     uint32_t tick = osKernelGetTickCount();
-    CAN_TxHeaderTypeDef tx_header;
-    uint8_t tx_data[8];
     uint32_t tx_mailbox;
+
+    CAN_TxHeaderTypeDef tx_header_1_fe = {
+        .StdId = 0x1FE,
+        .ExtId = 0,
+        .IDE = CAN_ID_STD,
+        .RTR = CAN_RTR_DATA,
+        .DLC = 8,
+        .TransmitGlobalTime = DISABLE
+    };
+    uint8_t tx_data_1_fe[8];
+
+    CAN_TxHeaderTypeDef tx_header_2_fe = {
+        .StdId = 0x2FE,
+        .ExtId = 0,
+        .IDE = CAN_ID_STD,
+        .RTR = CAN_RTR_DATA,
+        .DLC = 8,
+        .TransmitGlobalTime = DISABLE
+    };
+    uint8_t tx_data_2FE[8];
 
     for (;;)
     {
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
-        int16_t yaw_current = gimbal_controller.GetYawCurrentToSend();
         int16_t pitch_current = gimbal_controller.GetPitchCurrentToSend();
+        int16_t yaw_current = gimbal_controller.GetYawCurrentToSend();
+
+        int pitch_id = gimbal_controller.GetPitchMotorID() - 0x204;
+        int yaw_id = gimbal_controller.GetYawMotorID() - 0x204;
 
         osMutexRelease(gimbal_mutex_handle);
 
-        // TODO: Package CAN datas for motor currents
+        memset(tx_data_1_fe, 0, sizeof(tx_data_1_fe));
+        memset(tx_data_2FE, 0, sizeof(tx_data_2FE));
 
-        HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &tx_mailbox);
+        FillMotorCurrent(pitch_id, pitch_current, tx_data_1_fe, tx_data_2FE);
+        FillMotorCurrent(yaw_id, yaw_current, tx_data_1_fe, tx_data_2FE);
+
+        HAL_CAN_AddTxMessage(&hcan1, &tx_header_1_fe, tx_data_1_fe, &tx_mailbox);
+        HAL_CAN_AddTxMessage(&hcan1, &tx_header_2_fe, tx_data_2FE, &tx_mailbox);
 
         osDelayUntil(tick += 1);
     }
@@ -136,6 +160,27 @@ void VControlTask(void* argument)
         osDelay(1000);
     }
 }
+
+void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, uint8_t* data_2fe)
+{
+    const uint8_t high_byte = (current >> 8) & 0xFF;
+    const uint8_t low_byte = current & 0xFF;
+    int offset;
+
+    if (id >= 1 && id <= 4)
+    {
+        offset = (id - 1) * 2;
+        data_1fe[offset] = high_byte;
+        data_1fe[offset + 1] = low_byte;
+    }
+    else if (id >= 5 && id <= 7)
+    {
+        offset = (id - 5) * 2;
+        data_2fe[offset] = high_byte;
+        data_2fe[offset + 1] = low_byte;
+    }
+}
+
 extern "C" void IMU_Init_Wrapper()
 {
     EulerAngle_t init_angle(0, 0, 0);
