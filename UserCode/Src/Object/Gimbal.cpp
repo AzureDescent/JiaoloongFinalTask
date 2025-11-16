@@ -194,12 +194,18 @@ void Gimbal::Handle()
     }
 }
 
+void Gimbal::UpdateCurrentCommands()
+{
+    pitch_current_to_send_ = ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+    yaw_current_to_send_ = ConvertTorqueToCanCurrent(yaw_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+}
+
 int16_t Gimbal::GetPitchCurrentToSend()
 {
-    return ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+    return pitch_current_to_send_;
 }
 
 int16_t Gimbal::GetYawCurrentToSend()
 {
-    return ConvertTorqueToCanCurrent(yaw_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+    return yaw_current_to_send_;
 }

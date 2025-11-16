@@ -24,6 +24,7 @@ public:
     Gimbal();
     void Init();
     void Handle();
+    void UpdateCurrentCommands();
 
     void SetMode(Mode mode);
     Mode DetermineMode(uint8_t switch_state);
@@ -80,6 +81,9 @@ private:
     const float M6020_RATIO = 1.0f;
     const float M6020_TORQUE_CONSTANT = 0.741f;
     const float M6020_MAX_CURRENT = 1.62f;
+
+    volatile int16_t pitch_current_to_send_ = 0;
+    volatile int16_t yaw_current_to_send_ = 0;
 };
 #endif
 

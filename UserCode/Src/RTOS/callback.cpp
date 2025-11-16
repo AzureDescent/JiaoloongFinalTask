@@ -23,22 +23,15 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size)
     {
         HAL_UARTEx_ReceiveToIdle_DMA(&huart3, rx_buf, 18);
 
-        uint32_t current_tick = osKernelGetTickCount();
+        rc_controller.is_connected = true;
+        rc_controller.lastTick = osKernelGetTickCount();
 
-        if (current_tick - rc_controller.lastTick > 500)
+        if (osMutexAcquire(rc_data_mutex_handle, 0) == osOK)
         {
-            rc_controller.is_connected = false;
-        }
-        else
-        {
-            rc_controller.is_connected = true;
-
             memcpy(rx_data, rx_buf, 18);
-
+            osMutexRelease(rc_data_mutex_handle);
             osSemaphoreRelease(rc_data_ready_semaphore_handle);
         }
-
-        rc_controller.lastTick = current_tick;
     }
 }
 

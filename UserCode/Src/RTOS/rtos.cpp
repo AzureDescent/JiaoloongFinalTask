@@ -63,18 +63,18 @@ void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, ui
         Error_Handler();
     }
 
+    uint8_t local_rx_data[18];
+
     for (;;)
     {
         osSemaphoreAcquire(rc_data_ready_semaphore_handle, osWaitForever);
 
-        rc_controller.Handle(rx_data);
+        osMutexAcquire(rc_data_mutex_handle, osWaitForever);
+        memcpy(local_rx_data, rx_data, 18);
+        osMutexRelease(rc_data_mutex_handle);
 
-        if (rc_controller.IsOffline())
-        {
-            osMutexAcquire(gimbal_mutex_handle, osWaitForever);
-            gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
-            osMutexRelease(gimbal_mutex_handle);
-        }
+        rc_controller.is_connected = true;
+        rc_controller.Handle(rx_data);
     }
 }
 
@@ -104,6 +104,13 @@ void VControlTask(void* argument)
     uint32_t tick = osKernelGetTickCount();
     for (;;)
     {
+        if (rc_controller.IsOffline())
+        {
+            osMutexAcquire(gimbal_mutex_handle, osWaitForever);
+            gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
+            osMutexRelease(gimbal_mutex_handle);
+        }
+
         RemoteControl::ControlData rc_input = rc_controller.get_control_data();
 
         EulerAngle_t imu_attitude = imu_sensor.GetAttitude();
@@ -119,6 +126,8 @@ void VControlTask(void* argument)
         gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
 
         gimbal_controller.Handle();
+
+        gimbal_controller.UpdateCurrentCommands();
 
         osMutexRelease(gimbal_mutex_handle);
 
@@ -153,15 +162,11 @@ void VControlTask(void* argument)
 
     for (;;)
     {
-        osMutexAcquire(gimbal_mutex_handle, osWaitForever);
-
         int16_t pitch_current = gimbal_controller.GetPitchCurrentToSend();
         int16_t yaw_current = gimbal_controller.GetYawCurrentToSend();
 
         int pitch_id = gimbal_controller.GetPitchMotorID() - 0x204;
         int yaw_id = gimbal_controller.GetYawMotorID() - 0x204;
-
-        osMutexRelease(gimbal_mutex_handle);
 
         memset(tx_data_1_fe, 0, sizeof(tx_data_1_fe));
         memset(tx_data_2FE, 0, sizeof(tx_data_2FE));

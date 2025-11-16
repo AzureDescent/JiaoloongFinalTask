@@ -66,6 +66,7 @@ osSemaphoreId_t rc_data_ready_semaphore_handle;
 osSemaphoreId_t imu_data_ready_semaphore_handle;
 
 osMutexId_t gimbal_mutex_handle;
+osMutexId_t rc_data_mutex_handle;
 
 // TODO: FIX the CAN filter configuration as needed
 CAN_FilterTypeDef filter_config = {
@@ -147,6 +148,11 @@ int main(void)
         .name = "GimbalMutex"
     };
     gimbal_mutex_handle = osMutexNew(&gimbal_mutex_attributes);
+
+    const osMutexAttr_t rc_mutex_attributes = {
+        .name = "RcMutex"
+    };
+    rc_data_mutex_handle = osMutexNew(&rc_mutex_attributes);
 
     const osSemaphoreAttr_t rc_sem_attributes = {
         .name = "rcSem"

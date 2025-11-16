@@ -25,7 +25,7 @@ void RemoteControl::Init()
 
 float RemoteControl::LinearMapping(int in_min, int in_max, int input, float out_min, float out_max)
 {
-    float output_mapped = out_min + (out_max - out_min) * (input - in_min) / (in_max - in_min);
+    const float output_mapped = out_min + (out_max - out_min) * (input - in_min) / (in_max - in_min);
     return output_mapped;
 }
 
@@ -113,10 +113,6 @@ bool RemoteControl::IsOffline()
     if (curTick - lastTick > 500)
     {
         is_connected = false;
-    }
-    else
-    {
-        is_connected = true;
     }
     return !is_connected;
 }

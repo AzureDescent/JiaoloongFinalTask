@@ -251,5 +251,5 @@ EulerAngle_t IMU::GetAttitude() const
     taskENTER_CRITICAL();
     temp = euler_deg_;
     taskEXIT_CRITICAL();
-    return euler_deg_;
+    return temp;
 }
