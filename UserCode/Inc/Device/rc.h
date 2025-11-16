@@ -8,13 +8,6 @@
 #include <main.h>
 #include "cmsis_os2.h"
 
-enum SwitchStatus
-{
-    UP,
-    DOWN,
-    MID
-};
-
 #ifdef __cplusplus
 
 #include <cmath>
@@ -22,6 +15,13 @@ enum SwitchStatus
 class RemoteControl
 {
 public:
+    enum SwitchStatus
+    {
+        UP,
+        DOWN,
+        MID
+    };
+
     // 用于主控制线程获取数据的结构体
     struct ControlData
     {

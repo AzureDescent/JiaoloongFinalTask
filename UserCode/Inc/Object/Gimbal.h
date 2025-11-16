@@ -16,9 +16,9 @@ class Gimbal
 public:
     enum Mode
     {
-        GIMBAL_MODE_START,
-        GIMBAL_MODE_NORMAL,
-        GIMBAL_MODE_OFF
+        GIMBAL_MODE_OFF,
+        GIMBAL_MODE_PID,
+        GIMBAL_MODE_FEEDFORWARD_TEST
     };
 
     Gimbal();
@@ -58,7 +58,11 @@ private:
     // TODO: 确认电机的 CAN ID
     const uint32_t PITCH_MOTOR_ID = 0x205;
     const uint32_t YAW_MOTOR_ID = 0x206;
+
+    // TODO: 确认遥控器参数
     const float RC_STICK_DEADZONE = 0.05f;
+    const float RC_YAW_SPEED_SCALE = 180.0f;
+    const float RC_PITCH_SPEED_SCALE = 90.0f;
 
     const float M6020_RATIO = 1.0f;
     const float M6020_TORQUE_CONSTANT = 0.741f;
