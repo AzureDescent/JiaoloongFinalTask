@@ -8,18 +8,19 @@
 
 int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max_current)
 {
-    float current = torque / torque_constant;
+    float current_val = torque;
+    float limit = 20000.0f;
 
-    if (current > max_current)
+    if (current_val > limit)
     {
-        current = max_current;
+        current_val = limit;
     }
-    else if (current < -max_current)
+    else if (current_val < -limit)
     {
-        current = -max_current;
+        current_val = -limit;
     }
 
-    return static_cast<int16_t>(current * 16384.0f / 3.0f);
+    return static_cast<int16_t>(current_val);
 }
 
 float CalculateFeedforward(float current_angle)
@@ -40,11 +41,12 @@ void Gimbal::Init()
 {
     //TODO: Verify the i_max, out_max
 
-    pitch_angle_pid_ = PID(10.f, 0.0f, 0.f, 0.f, 200.f, 0.f);
-    pitch_speed_pid_ = PID(150.f, 5.f, 0.f, 1000.f, 30000.f, 0.f);
+    pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
+    pitch_speed_pid_ = PID(15.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
 
-    yaw_angle_pid_ = PID(10.0f, 0.0f, 0.0f, 0.0f, 200.0f);
-    yaw_speed_pid_ = PID(150.0f, 5.0f, 0.0f, 1000.0f, 30000.0f);
+
+    yaw_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
+    yaw_speed_pid_ = PID(10.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
 
     target_pitch_angle_ = 0.0f;
     target_yaw_angle_ = 0.0f;
