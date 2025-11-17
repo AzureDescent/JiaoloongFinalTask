@@ -40,11 +40,14 @@ void Gimbal::Init()
 {
     //TODO: Verify the i_max, out_max
 
-    pitch_speed_pid_ = PID(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-    pitch_angle_pid_ = PID(0.f, 0.0f, 0.f, 0.f, 0.f, 0.f);
+    pitch_angle_pid_ = PID(10.f, 0.0f, 0.f, 0.f, 200.f, 0.f);
+    pitch_speed_pid_ = PID(150.f, 5.f, 0.f, 1000.f, 30000.f, 0.f);
 
-    yaw_speed_pid_ = PID(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-    yaw_angle_pid_ = PID(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+    yaw_angle_pid_ = PID(10.0f, 0.0f, 0.0f, 0.0f, 200.0f);
+    yaw_speed_pid_ = PID(150.0f, 5.0f, 0.0f, 1000.0f, 30000.0f);
+
+    target_pitch_angle_ = 0.0f;
+    target_yaw_angle_ = 0.0f;
 
     current_mode_ = GIMBAL_MODE_OFF;
     imu_feedback_ = EulerAngle_t(0, 0, 0);
@@ -121,10 +124,9 @@ void Gimbal::SetImuFeedback(const EulerAngle_t& imu_attitude)
 
 void Gimbal::SetPIDTargets(float yaw_stick, float pitch_stick)
 {
-    const float dt = 0.010f;
-
-    if (current_mode_ == GIMBAL_MODE_PID || current_mode_ == GIMBAL_MODE_FEEDFORWARD_TEST)
+    if (current_mode_ == GIMBAL_MODE_PID)
     {
+        constexpr float dt = 0.010f;
         float yaw_speed = 0.0f;
         if (std::fabs(yaw_stick) > RC_STICK_DEADZONE)
         {
@@ -169,8 +171,8 @@ void Gimbal::Handle()
 
             float target_speed_pitch = pitch_angle_pid_.Calc(target_pitch_angle_, fdb_angle_pitch);
             float output_torque_pitch = pitch_speed_pid_.Calc(target_speed_pitch, fdb_speed_pitch);
-            float feedforward_torque_pitch = CalculateFeedforward(fdb_angle_pitch);
 
+            float feedforward_torque_pitch = CalculateFeedforward(fdb_angle_pitch);
             pitch_output_torque_ = output_torque_pitch + feedforward_torque_pitch;
 
             float fdb_angle_yaw = yaw_motor_.GetAngle();
@@ -186,7 +188,12 @@ void Gimbal::Handle()
         case GIMBAL_MODE_FEEDFORWARD_TEST:
         {
             float fdb_angle_pitch = imu_feedback_.pitch;
-            pitch_output_torque_ = CalculateFeedforward(fdb_angle_pitch);
+            float fdb_speed_pitch = pitch_motor_.GetSpeed();
+
+            float target_speed_pitch = pitch_angle_pid_.Calc(target_pitch_angle_, fdb_angle_pitch);
+            float output_torque_pitch = pitch_speed_pid_.Calc(target_speed_pitch, fdb_speed_pitch);
+
+            pitch_output_torque_ = output_torque_pitch;
 
             yaw_output_torque_ = 0.0f;
             break;
