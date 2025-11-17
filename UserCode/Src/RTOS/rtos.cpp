@@ -22,6 +22,15 @@ RemoteControl rc_controller;
 uint8_t rx_buf[18];
 uint8_t rx_data[18];
 
+struct TestData {
+    float angle;      // 记录时的实际角度
+    int16_t current;  // 记录时的电流值
+    float target;     // 当时的目标角度
+};
+
+// 定义一个数组存放 20 组数据，方便我们在调试器里一次性看完
+TestData feedforward_logs[20];
+int log_index = 0;
 
 void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, uint8_t* data_2fe)
 {
@@ -109,6 +118,17 @@ void VControlTask(void* argument)
     gimbal_controller.SetImuFeedback(start_attitude);
     gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_FEEDFORWARD_TEST);
 
+    const float test_sequence[] = {
+        0.0f,
+        5.0f, 10.0f, 15.0f, 20.0f, 25.0f, 30.0f,
+        0.0f, // 回中
+        -5.0f, -10.0f, -15.0f, -20.0f, -25.0f, -30.0f
+    };
+
+    const int sequence_len = sizeof(test_sequence) / sizeof(float);
+    int seq_idx = 0;
+    uint32_t state_timer = osKernelGetTickCount();
+
     uint32_t tick = osKernelGetTickCount();
     for (;;)
     {
@@ -119,22 +139,44 @@ void VControlTask(void* argument)
         //     osMutexRelease(gimbal_mutex_handle);
         // }
 
-        RemoteControl::ControlData rc_input = rc_controller.get_control_data();
+        if (osKernelGetTickCount() - state_timer > 5000)
+        {
+            // 1. 在切换前，记录上一阶段稳定后的数据
+            if (log_index < 20 && seq_idx < sequence_len)
+            {
+                feedforward_logs[log_index].angle = imu_sensor.GetAttitude().pitch;
+                feedforward_logs[log_index].current = gimbal_controller.GetPitchCurrentToSend();
+                feedforward_logs[log_index].target = test_sequence[seq_idx]; // 记录当时的目标
+                log_index++;
+            }
 
+            seq_idx++;
+            if (seq_idx >= sequence_len)
+            {
+                seq_idx = 0; // 跑完一轮，从头开始，或者你可以让它停在 0
+                log_index = 0; // 覆盖旧数据（可选）
+            }
+
+            state_timer = osKernelGetTickCount();
+        }
+
+        float current_target = test_sequence[seq_idx];
+
+        RemoteControl::ControlData rc_input = rc_controller.get_control_data();
         EulerAngle_t imu_attitude = imu_sensor.GetAttitude();
 
-        Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
-
+        // 强制锁定在 PID/前馈测试模式
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
         gimbal_controller.SetImuFeedback(imu_attitude);
+        gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_FEEDFORWARD_TEST);
 
-        gimbal_controller.SetMode(mode);
+        gimbal_controller.target_pitch_angle_ = current_target;
 
-        gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
+        // 如果不想改头文件，可以用 SetPIDTargets 传入差值？不行，那样不准。
+        // 强烈建议：去 UserCode/Inc/Object/Gimbal.h，把 target_pitch_angle_ 移动到 public: 下面。
 
         gimbal_controller.Handle();
-
         gimbal_controller.UpdateCurrentCommands();
 
         osMutexRelease(gimbal_mutex_handle);
