@@ -26,12 +26,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size)
         rc_controller.is_connected = true;
         rc_controller.lastTick = osKernelGetTickCount();
 
-        if (osMutexAcquire(rc_data_mutex_handle, 0) == osOK)
-        {
-            memcpy(rx_data, rx_buf, 18);
-            osMutexRelease(rc_data_mutex_handle);
-            osSemaphoreRelease(rc_data_ready_semaphore_handle);
-        }
+        memcpy(rx_data, rx_buf, 18);
+
+        osSemaphoreRelease(rc_data_ready_semaphore_handle);
     }
 }
 
