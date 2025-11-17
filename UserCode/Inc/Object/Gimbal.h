@@ -48,7 +48,7 @@ public:
         return YAW_MOTOR_ID;
     }
 
-private:
+// private:
     Motor pitch_motor_;
     Motor yaw_motor_;
 
@@ -67,8 +67,8 @@ private:
     EulerAngle_t imu_feedback_{};
 
     // TODO: 确认电机的 CAN ID
-    const uint32_t PITCH_MOTOR_ID = 0x205;
-    const uint32_t YAW_MOTOR_ID = 0x206;
+    const uint32_t PITCH_MOTOR_ID = 0x208;
+    const uint32_t YAW_MOTOR_ID = 0x205;
 
     const float PITCH_MAX_ANGLE = 40.0f;
     const float PITCH_MIN_ANGLE = -40.0f;
