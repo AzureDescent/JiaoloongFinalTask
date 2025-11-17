@@ -42,7 +42,7 @@ void Gimbal::Init()
     //TODO: Verify the i_max, out_max
 
     pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
-    pitch_speed_pid_ = PID(15.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
+    pitch_speed_pid_ = PID(60.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
 
 
     yaw_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
