@@ -168,7 +168,7 @@ int main(void)
 
     const osThreadAttr_t imu_task_attributes = {
         .name = "imuTask",
-        .stack_size = 1024 * 8,
+        .stack_size = 1024 * 4,
         .priority = osPriorityHigh
     };
     imu_task_handle = osThreadNew(VImuTask, NULL, &imu_task_attributes);
@@ -182,14 +182,14 @@ int main(void)
 
     const osThreadAttr_t can_send_task_attributes = {
         .name = "canSendTask",
-        .stack_size = 1024,
+        .stack_size = 512,
         .priority = osPriorityNormal
     };
     can_send_task_handle = osThreadNew(VCanSendTask, NULL, &can_send_task_attributes);
 
     const osThreadAttr_t can_recv_task_attributes = {
         .name = "canRecvTask",
-        .stack_size = 1024,
+        .stack_size = 512,
         .priority = osPriorityNormal
     };
     can_recv_task_handle = osThreadNew(VCanRecvTask, NULL, &can_recv_task_attributes);
