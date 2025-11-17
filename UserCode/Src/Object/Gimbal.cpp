@@ -9,7 +9,7 @@
 int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max_current)
 {
     float current_val = torque;
-    float limit = 20000.0f;
+    float limit = 16384.0f;
 
     if (current_val > limit)
     {
@@ -44,12 +44,12 @@ void Gimbal::Init()
 {
     //TODO: Verify the i_max, out_max
 
-    pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
-    pitch_speed_pid_ = PID(42.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
+    pitch_angle_pid_ = PID(3.0f, 0.0f, 0.0f, 0.0f, 250.0f);
+    pitch_speed_pid_ = PID(60.0f, 0.7f, 0.0f, 2000.0f, 20000.0f);
 
 
-    yaw_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
-    yaw_speed_pid_ = PID(10.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
+    yaw_angle_pid_ = PID(8.0f, 0.0f, 0.0f, 0.0f, 600.0f);
+    yaw_speed_pid_ = PID(80.0f, 1.0f, 0.0f, 2000.0f, 20000.0f);
 
     target_pitch_angle_ = 0.0f;
     target_yaw_angle_ = 0.0f;
@@ -135,14 +135,14 @@ void Gimbal::SetPIDTargets(float yaw_stick, float pitch_stick)
         float yaw_speed = 0.0f;
         if (std::fabs(yaw_stick) > RC_STICK_DEADZONE)
         {
-            yaw_speed = yaw_stick * RC_YAW_SPEED_SCALE;
+            yaw_speed = -yaw_stick * RC_YAW_SPEED_SCALE;
         }
         target_yaw_angle_ += yaw_speed * dt;
 
         float pitch_speed = 0.0f;
         if (std::abs(pitch_stick) > RC_STICK_DEADZONE)
         {
-            pitch_speed = pitch_stick * RC_PITCH_SPEED_SCALE;
+            pitch_speed = -pitch_stick * RC_PITCH_SPEED_SCALE;
         }
         target_pitch_angle_ += pitch_speed * dt;
 

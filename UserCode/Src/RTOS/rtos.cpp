@@ -8,7 +8,7 @@
 #include "iwdg.h"
 #include "rc.h"
 
-constexpr float dt = 0.001f;
+constexpr float dt = 0.002f;
 constexpr float kg = 0.1f;
 constexpr float g_threshold = 0.1f;
 // TODO: Set correct gyro bias
@@ -52,7 +52,7 @@ void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, ui
 
         imu_sensor.UpdateAttitude();
 
-        osDelayUntil(tick += 1);
+        osDelay(2);
     }
 }
 
@@ -69,9 +69,7 @@ void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, ui
     {
         osSemaphoreAcquire(rc_data_ready_semaphore_handle, osWaitForever);
 
-        osMutexAcquire(rc_data_mutex_handle, osWaitForever);
         memcpy(local_rx_data, rx_data, 18);
-        osMutexRelease(rc_data_mutex_handle);
 
         rc_controller.is_connected = true;
         rc_controller.Handle(rx_data);
@@ -190,7 +188,7 @@ void VControlTask(void* argument)
     {
         HAL_IWDG_Refresh(&hiwdg);
 
-        osDelay(1000);
+        osDelay(500);
     }
 }
 

@@ -35,7 +35,6 @@ extern osSemaphoreId_t rc_data_ready_semaphore_handle;
 extern osSemaphoreId_t imu_data_ready_semaphore_handle;
 
 extern osMutexId_t gimbal_mutex_handle;
-extern osMutexId_t rc_data_mutex_handle;
 
 void VControlTask(void* argument);
 [[noreturn]] void VImuTask(void* argument);
