@@ -48,7 +48,7 @@ public:
         return YAW_MOTOR_ID;
     }
 
-// private:
+private:
     Motor pitch_motor_;
     Motor yaw_motor_;
 

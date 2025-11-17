@@ -23,13 +23,16 @@ int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max
     return static_cast<int16_t>(current_val);
 }
 
-float CalculateFeedforward(float current_angle)
+float CalculateFeedforward(const float current_angle)
 {
-    //TODO: 拟合前馈力矩
-    // static float torque_tmp = CalcTorque(current_angle); // CalcTorque 未定义
-    // return torque_tmp;
-    (void)current_angle;
-    return 0.0f;
+    const float angle_rad = current_angle * (3.1415926f / 180.0f);
+
+    // 拟合公式：3500 * sin( 实际角度_rad - 29.2度对应的弧度 )
+    const float a = 3500.0f; // 幅值
+    const float b = 0.51f;    // 相位偏移 (平衡点弧度)
+
+    // 返回所需的补偿电流值 (Raw Units)
+    return a * sinf(angle_rad - b);
 }
 
 
@@ -42,7 +45,7 @@ void Gimbal::Init()
     //TODO: Verify the i_max, out_max
 
     pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
-    pitch_speed_pid_ = PID(62.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
+    pitch_speed_pid_ = PID(42.0f, 0.0f, 0.0f, 2000.0f, 20000.0f);
 
 
     yaw_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 200.0f);
@@ -194,8 +197,8 @@ void Gimbal::Handle()
 
             float target_speed_pitch = pitch_angle_pid_.Calc(target_pitch_angle_, fdb_angle_pitch);
             float output_torque_pitch = pitch_speed_pid_.Calc(target_speed_pitch, fdb_speed_pitch);
-
-            pitch_output_torque_ = output_torque_pitch;
+            float feedforward_torque_pitch = CalculateFeedforward(fdb_angle_pitch);
+            pitch_output_torque_ = output_torque_pitch + feedforward_torque_pitch;
 
             yaw_output_torque_ = 0.0f;
             break;
