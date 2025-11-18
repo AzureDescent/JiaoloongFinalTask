@@ -149,7 +149,11 @@ void Gimbal::SetPIDTargets(float yaw_stick, float pitch_stick)
         float pitch_speed = 0.0f;
         if (std::abs(pitch_stick) > RC_STICK_DEADZONE)
         {
-            pitch_speed = -pitch_stick * RC_PITCH_SPEED_SCALE;
+            // 一号云台pitch
+            // pitch_speed = -pitch_stick * RC_PITCH_SPEED_SCALE;
+
+            // 二号云台pitch
+            pitch_speed = pitch_stick * RC_PITCH_SPEED_SCALE;
         }
         target_pitch_angle_ += pitch_speed * dt;
 
