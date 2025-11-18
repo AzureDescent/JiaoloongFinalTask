@@ -42,7 +42,7 @@ float CalculateFeedforward(const float current_angle)
     const float a = 4200.0f;
     const float b = 0.69f;
 
-    return a * sinf(b - angle_rad);
+    return -a * sinf(b - angle_rad);
 }
 
 
@@ -54,14 +54,14 @@ void Gimbal::Init()
 {
     //TODO: Verify the i_max, out_max
 
-    pitch_angle_pid_ = PID(2.f, 0.0f, 0.0f, 0.0f, 350.0f);
-    pitch_speed_pid_ = PID(15.0f, 0.f, 0.0f, 2000.0f, 20000.0f);
+    pitch_angle_pid_ = PID(2.f, 0.0f, 0.0f, 0.0f, 300.0f);
+    pitch_speed_pid_ = PID(22.0f, 0.0f, 2.f, 2000.0f, 20000.0f);
 
     // 一号云台PitchPID参数
     // pitch_angle_pid_ = PID(4.f, 0.0f, 0.0f, 0.0f, 250.0f);
     // pitch_speed_pid_ = PID(60.0f, 0.7f, 0.0f, 2000.0f, 20000.0f);
 
-    yaw_angle_pid_ = PID(16.3f, 0.0f, 0.02f, 0.0f, 600.0f);
+    yaw_angle_pid_ = PID(16.3f, 0.0f, 0.02f, 0.0f, 800.0f);
     yaw_speed_pid_ = PID(81.0f, 1.2f, 0.03f, 2000.0f, 20000.0f);
 
     //一号云台YawPID参数
@@ -229,7 +229,7 @@ void Gimbal::Handle()
 
 void Gimbal::UpdateCurrentCommands()
 {
-    pitch_current_to_send_ = - ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+    pitch_current_to_send_ = -ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
     yaw_current_to_send_ = ConvertTorqueToCanCurrent(yaw_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
 }
 
