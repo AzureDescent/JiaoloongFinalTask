@@ -25,14 +25,24 @@ int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max
 
 float CalculateFeedforward(const float current_angle)
 {
+    // 一号云台
+    // const float angle_rad = current_angle * (3.1415926f / 180.0f);
+    //
+    // // 拟合公式：3500 * sin( 实际角度_rad - 29.2度对应的弧度 )
+    // const float a = 3500.0f; // 幅值
+    // const float b = 0.51f;    // 相位偏移 (平衡点弧度)
+    //
+    // // 返回所需的补偿电流值 (Raw Units)
+    // return a * sinf(angle_rad - b);
+
+    // 二号云台
     const float angle_rad = current_angle * (3.1415926f / 180.0f);
 
-    // 拟合公式：3500 * sin( 实际角度_rad - 29.2度对应的弧度 )
-    const float a = 3500.0f; // 幅值
-    const float b = 0.51f;    // 相位偏移 (平衡点弧度)
+    // 2. 二号云台拟合参数
+    const float a = 4200.0f;
+    const float b = 0.69f;
 
-    // 返回所需的补偿电流值 (Raw Units)
-    return a * sinf(angle_rad - b);
+    return a * sinf(b - angle_rad);
 }
 
 
@@ -44,8 +54,8 @@ void Gimbal::Init()
 {
     //TODO: Verify the i_max, out_max
 
-    pitch_angle_pid_ = PID(2.f, 0.0f, 0.0f, 0.0f, 250.0f);
-    pitch_speed_pid_ = PID(40.0f, 0.f, 0.0f, 2000.0f, 20000.0f);
+    pitch_angle_pid_ = PID(2.f, 0.0f, 0.0f, 0.0f, 350.0f);
+    pitch_speed_pid_ = PID(15.0f, 0.f, 0.0f, 2000.0f, 20000.0f);
 
     // 一号云台PitchPID参数
     // pitch_angle_pid_ = PID(4.f, 0.0f, 0.0f, 0.0f, 250.0f);
@@ -153,7 +163,7 @@ void Gimbal::SetPIDTargets(float yaw_stick, float pitch_stick)
             // pitch_speed = -pitch_stick * RC_PITCH_SPEED_SCALE;
 
             // 二号云台pitch
-            pitch_speed = pitch_stick * RC_PITCH_SPEED_SCALE;
+            pitch_speed = -pitch_stick * RC_PITCH_SPEED_SCALE;
         }
         target_pitch_angle_ += pitch_speed * dt;
 
@@ -219,7 +229,7 @@ void Gimbal::Handle()
 
 void Gimbal::UpdateCurrentCommands()
 {
-    pitch_current_to_send_ = ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
+    pitch_current_to_send_ = - ConvertTorqueToCanCurrent(pitch_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
     yaw_current_to_send_ = ConvertTorqueToCanCurrent(yaw_output_torque_, M6020_TORQUE_CONSTANT, M6020_MAX_CURRENT);
 }
 
