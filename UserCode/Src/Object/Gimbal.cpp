@@ -51,8 +51,8 @@ void Gimbal::Init()
     // pitch_angle_pid_ = PID(4.f, 0.0f, 0.0f, 0.0f, 250.0f);
     // pitch_speed_pid_ = PID(60.0f, 0.7f, 0.0f, 2000.0f, 20000.0f);
 
-    yaw_angle_pid_ = PID(16.0f, 0.0f, 0.0f, 0.0f, 600.0f);
-    yaw_speed_pid_ = PID(80.0f, 1.2f, 0.0f, 2000.0f, 20000.0f);
+    yaw_angle_pid_ = PID(16.5f, 0.0f, 0.0f, 0.0f, 600.0f);
+    yaw_speed_pid_ = PID(81.0f, 1.2f, 0.03f, 2000.0f, 20000.0f);
 
     //一号云台YawPID参数
     // yaw_angle_pid_ = PID(8.0f, 0.0f, 0.0f, 0.0f, 600.0f);
