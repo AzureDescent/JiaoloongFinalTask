@@ -43,7 +43,18 @@ float CalculateFeedforward(const float current_angle)
     // const float b = 0.69f;
     //
     // return -a * sinf(b - angle_rad);
-    return 0.0f;
+    // 将角度转弧度
+    const float angle_rad = current_angle * (3.1415926f / 180.0f);
+
+    // 拟合参数
+    // 数据峰值在 7.5度 左右，且包含较大的负向偏移
+    const float a = 18250.0f;      // 幅值
+    const float b = 1.44f;         // 相位偏移 (sin(angle + 1.44))
+    const float c = -12500.0f;     // 垂直偏移 (Bias)
+
+    // 公式：A * sin(angle + b) + c
+    // 对应峰值：7.5度时，sin(0.13 + 1.44) ≈ sin(1.57) = 1，输出 18250 - 12500 = 5750
+    return a * sinf(angle_rad + b) + c;
 }
 
 
@@ -56,8 +67,8 @@ void Gimbal::Init()
     //TODO: Verify the i_max, out_max
 
 
-    pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 400.0f);
-    pitch_speed_pid_ = PID(20.0f, 0.0f, 0.0f, 0.0f, 28000.0f);
+    pitch_angle_pid_ = PID(4.2f, 0.0f, 0.0f, 0.0f, 400.0f, 0.0f);
+    pitch_speed_pid_ = PID(50.0f, 0.0f, 0.2f, 5000.0f, 28000.0f, 0.0f);
 
     yaw_angle_pid_ = PID(0.f, 0.0f, 0.0f, 0.0f, 800.0f);
     yaw_speed_pid_ = PID(.0f, 0.f, 0.f, 2000.0f, 20000.0f);
