@@ -118,7 +118,6 @@ void VControlTask(void* argument)
     gimbal_controller.SetImuFeedback(start_attitude);
 
     // 强制进入前馈测试模式 (输出 = PID计算值，无额外叠加)
-    gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_FEEDFORWARD_TEST);
 
     // 2. 定义测试序列 (涵盖水平、正向、负向)
     // 根据你的云台活动范围调整，一般测 -30 到 +30 度即可
@@ -170,10 +169,27 @@ void VControlTask(void* argument)
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
         gimbal_controller.SetImuFeedback(imu_attitude);
-        gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_FEEDFORWARD_TEST);
+        // ================== 修改开始 ==================
 
-        // 【关键】直接设置目标角度，覆盖遥控器逻辑
-        gimbal_controller.target_pitch_angle_ = current_target;
+        // 1. 读取开关状态并设置模式
+        // 根据 Gimbal::DetermineMode 的逻辑: UP->PID, MID->TEST, DOWN->OFF
+        Gimbal::Mode target_mode = gimbal_controller.DetermineMode(rc_input.switch_right);
+        gimbal_controller.SetMode(target_mode);
+
+        // 2. 根据当前模式执行逻辑
+        if (target_mode == Gimbal::GIMBAL_MODE_FEEDFORWARD_TEST)
+        {
+            // 中档：执行自动前馈测试逻辑，强制覆盖目标角度
+            gimbal_controller.target_pitch_angle_ = current_target;
+        }
+        else if (target_mode == Gimbal::GIMBAL_MODE_PID)
+        {
+            // 上档：恢复遥控器控制 (PID模式)，用于手动复位或检查
+            gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
+        }
+        // 下档 (OFF)：Handle() 会自动输出 0 力矩，此处无需操作
+
+        // ================== 修改结束 ==================
 
         gimbal_controller.Handle();
         gimbal_controller.UpdateCurrentCommands();
