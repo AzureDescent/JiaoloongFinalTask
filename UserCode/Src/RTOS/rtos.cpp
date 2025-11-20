@@ -97,89 +97,37 @@ void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, ui
     }
 }
 
-int16_t debug_target_pitch = 20; // 手动修改此值来设定目标角度
-volatile uint8_t debug_trigger_save = 0;  // 置 1 以保存当前数据到 feedforward_logs
-
-struct TestData {
-    float angle;      // 实际角度 (X轴)
-    int16_t current;  // 输出电流 (Y轴)
-    float target;     // 目标角度 (参考用)
-};
-
-TestData feedforward_logs[20];
-int log_index = 0;
-
 void VControlTask(void* argument)
 {
-    // 1. 初始化与缓启动
     gimbal_controller.Init();
-    debug_target_pitch = 20;
     osDelay(500);
 
-    // 读取当前姿态作为初始目标，防止上电瞬间大幅度动作
-    EulerAngle_t start_attitude = imu_sensor.GetAttitude();
-    gimbal_controller.SetImuFeedback(start_attitude);
-
-    // 初始化调试目标为当前角度
-    debug_target_pitch = start_attitude.pitch;
-
     uint32_t tick = osKernelGetTickCount();
-
     for (;;)
     {
-        // --- 读取数据 ---
+        if (rc_controller.IsOffline())
+        {
+            osMutexAcquire(gimbal_mutex_handle, osWaitForever);
+            gimbal_controller.SetMode(Gimbal::GIMBAL_MODE_OFF);
+            osMutexRelease(gimbal_mutex_handle);
+        }
+
         RemoteControl::ControlData rc_input = rc_controller.get_control_data();
+
         EulerAngle_t imu_attitude = imu_sensor.GetAttitude();
+
+        Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
 
         osMutexAcquire(gimbal_mutex_handle, osWaitForever);
 
         gimbal_controller.SetImuFeedback(imu_attitude);
 
-        // --- 1. 模式判断 (安全逻辑) ---
-        // UP: PID控制(摇杆), MID: 前馈调试(LiveWatch), DOWN: 关(急停)
-        Gimbal::Mode mode = gimbal_controller.DetermineMode(rc_input.switch_right);
         gimbal_controller.SetMode(mode);
 
-        // --- 2. 根据模式执行控制 ---
-        if (mode == Gimbal::GIMBAL_MODE_FEEDFORWARD_TEST)
-        {
-            // [前馈调试模式]
-            // 限制输入范围，防止手误输入过大角度损坏机械结构
-            if (debug_target_pitch > 25.0f) debug_target_pitch = 25.0f;
-            if (debug_target_pitch < -25.0f) debug_target_pitch = -25.0f;
-
-            // 应用 Live Watch 设置的目标
-            gimbal_controller.target_pitch_angle_ = 1.8f;
-
-            // [手动数据记录]
-            // 当你觉得云台稳定后，将 debug_trigger_save 改为 1 即可记录
-            if (debug_trigger_save == 1)
-            {
-                if (log_index < 20)
-                {
-                    feedforward_logs[log_index].angle = imu_sensor.GetAttitude().pitch;
-                    feedforward_logs[log_index].current = gimbal_controller.GetPitchCurrentToSend();
-                    feedforward_logs[log_index].target = debug_target_pitch;
-                    log_index++;
-                }
-                else
-                {
-                    log_index = 0; // 循环覆盖，或者你也可以选择不覆盖
-                }
-                debug_trigger_save = 0; // 自动复位，等待下一次触发
-            }
-        }
-        else if (mode == Gimbal::GIMBAL_MODE_PID)
-        {
-            // [普通PID模式] 允许用摇杆调整姿态
-            gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
-
-            // 当切换回调试模式时，同步当前的 Pitch 到调试变量，防止跳变
-            debug_target_pitch = gimbal_controller.target_pitch_angle_;
-        }
-        // mode == OFF 时，Handle() 会自动输出 0 力矩
+        gimbal_controller.SetPIDTargets(rc_input.yaw_stick, rc_input.pitch_stick);
 
         gimbal_controller.Handle();
+
         gimbal_controller.UpdateCurrentCommands();
 
         osMutexRelease(gimbal_mutex_handle);
