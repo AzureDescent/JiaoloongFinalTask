@@ -36,13 +36,13 @@ float CalculateFeedforward(const float current_angle)
     // return a * sinf(angle_rad - b);
 
     // 二号云台
-    const float angle_rad = current_angle * (3.1415926f / 180.0f);
-
-    // 2. 二号云台拟合参数
-    const float a = 4200.0f;
-    const float b = 0.69f;
-
-    return -a * sinf(b - angle_rad);
+    // const float angle_rad = current_angle * (3.1415926f / 180.0f);
+    //
+    // // 2. 二号云台拟合参数
+    // const float a = 4200.0f;
+    // const float b = 0.69f;
+    //
+    // return -a * sinf(b - angle_rad);
 }
 
 
