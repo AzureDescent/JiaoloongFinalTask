@@ -131,7 +131,7 @@ void VControlTask(void* argument)
 
         osMutexRelease(gimbal_mutex_handle);
 
-        osDelayUntil(tick += 10);
+        osDelayUntil(tick += 1);
     }
 }
 

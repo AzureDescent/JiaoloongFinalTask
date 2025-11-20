@@ -48,6 +48,9 @@ public:
         return YAW_MOTOR_ID;
     }
 
+    float fdb_angle_yaw;
+    float target_yaw_angle_ = 0.0f;
+
 private:
     Motor pitch_motor_;
     Motor yaw_motor_;
@@ -58,7 +61,7 @@ private:
     PID yaw_speed_pid_;
 
     float target_pitch_angle_ = 0.0f;
-    float target_yaw_angle_ = 0.0f;
+
 
     float pitch_output_torque_ = 0.0f;
     float yaw_output_torque_ = 0.0f;
@@ -70,8 +73,8 @@ private:
     const uint32_t PITCH_MOTOR_ID = 0x208;
     const uint32_t YAW_MOTOR_ID = 0x205;
 
-    const float PITCH_MAX_ANGLE = 25.0f;
-    const float PITCH_MIN_ANGLE = -25.0f;
+    const float PITCH_MAX_ANGLE = 28.0f;
+    const float PITCH_MIN_ANGLE = -28.0f;
 
     // TODO: 确认遥控器参数
     const float RC_STICK_DEADZONE = 0.08f;

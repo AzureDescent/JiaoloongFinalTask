@@ -12,7 +12,7 @@ public:
     PID():
         PID(0, 0, 0, 0, 0,0) {}
 
-    PID(float kp, float ki, float kd, float i_max, float out_max, float d_filter_k = 1);
+    PID(float kp, float ki, float kd, float i_max, float out_max, float d_filter_k = 0.1f);
 
     void Reset();
     float Calc(float ref, float fdb);
