@@ -48,6 +48,9 @@ public:
         return YAW_MOTOR_ID;
     }
 
+    float target_pitch_angle_ = 0.0f;
+    float target_yaw_angle_ = 0.0f;
+
 private:
     Motor pitch_motor_;
     Motor yaw_motor_;
@@ -57,8 +60,7 @@ private:
     PID yaw_angle_pid_;
     PID yaw_speed_pid_;
 
-    float target_pitch_angle_ = 0.0f;
-    float target_yaw_angle_ = 0.0f;
+
 
     float pitch_output_torque_ = 0.0f;
     float yaw_output_torque_ = 0.0f;
