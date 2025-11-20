@@ -10,7 +10,7 @@
 
 constexpr float dt = 0.002f;
 constexpr float kg = 0.1f;
-constexpr float g_threshold = 0.15f;
+constexpr float g_threshold = 0.5f;
 // TODO: Set correct gyro bias
 constexpr float gyro_bias[3] = { 0.0f, 0.0f, 0.0f };
 constexpr float r_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
@@ -45,7 +45,6 @@ void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, ui
 
 [[noreturn]] void VImuTask(void* argument)
 {
-    uint32_t tick = osKernelGetTickCount();
     for (;;)
     {
         imu_sensor.ReadSensor();

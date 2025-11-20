@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\UserCode\Inc\Control</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;..\UserCode\Inc;..\UserCode\Inc\Device;..\UserCode\Inc\Control;..\UserCode\Inc\HAL;..\UserCode\Inc\Object;..\UserCode\Inc\RTOS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -423,6 +423,51 @@
               <FileName>stm32f4xx_hal_timebase_tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f4xx_hal_timebase_tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\can.c</FilePath>
+            </File>
+            <File>
+              <FileName>dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\dma.c</FilePath>
+            </File>
+            <File>
+              <FileName>iwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\iwdg.c</FilePath>
+            </File>
+            <File>
+              <FileName>spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\spi.c</FilePath>
+            </File>
+            <File>
+              <FileName>syscalls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\syscalls.c</FilePath>
+            </File>
+            <File>
+              <FileName>sysmem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\sysmem.c</FilePath>
+            </File>
+            <File>
+              <FileName>system_stm32f4xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\system_stm32f4xx.c</FilePath>
+            </File>
+            <File>
+              <FileName>tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\usart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -508,13 +553,6 @@
         </Group>
         <Group>
           <GroupName>Drivers/CMSIS</GroupName>
-          <Files>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/system_stm32f4xx.c</FilePath>
-            </File>
-          </Files>
         </Group>
         <Group>
           <GroupName>Middlewares/FreeRTOS</GroupName>
@@ -598,6 +636,26 @@
               <FileName>rtos.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\UserCode\Src\RTOS\rtos.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>mahony.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\UserCode\Src\Control\mahony.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>pid.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\UserCode\Src\Control\pid.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Gimbal.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\UserCode\Src\Object\Gimbal.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>bmi088.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\UserCode\Src\HAL\bmi088.cpp</FilePath>
             </File>
           </Files>
         </Group>

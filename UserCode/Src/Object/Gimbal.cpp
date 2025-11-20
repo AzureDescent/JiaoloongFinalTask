@@ -63,10 +63,10 @@ void Gimbal::Init()
     //TODO: Verify the i_max, out_max
 
     pitch_angle_pid_ = PID(4.2f, 0.0f, 0.0f, 0.0f, 400.0f, 0.0f);
-    pitch_speed_pid_ = PID(50.0f, 0.0f, 0.2f, 5000.0f, 28000.0f, 0.0f);
+    pitch_speed_pid_ = PID(50.0f, 0.0f, 0.2f, 5000.0f, 12000.0f, 0.1f);
 
-    yaw_angle_pid_ = PID(0.f, 0.0f, 0.0f, 0.0f, 800.0f);
-    yaw_speed_pid_ = PID(.0f, 0.f, 0.f, 2000.0f, 20000.0f);
+    yaw_angle_pid_ = PID(0.f, 0.0f, 0.0f, 0.0f, 800.0f,0.0f);
+    yaw_speed_pid_ = PID(.0f, 0.f, 0.f, 2000.0f, 12000.0f,0.0f);
     // 二号云台PitchPID参数
     // pitch_angle_pid_ = PID(2.f, 0.0f, 0.0f, 0.0f, 300.0f);
     // pitch_speed_pid_ = PID(22.0f, 0.0f, 2.f, 2000.0f, 20000.0f);

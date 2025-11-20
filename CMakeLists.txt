@@ -33,13 +33,7 @@ enable_language(C ASM)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
-        UserCode/Inc/Device/motor.h
-        UserCode/Inc/Device/imu.h
-        UserCode/Inc/Device/rc.h
-        UserCode/Inc/Control/pid.h
-        UserCode/Inc/HAL/bmi088.h
-        UserCode/Inc/RTOS/rtos.h
-        UserCode/Inc/Object/Gimbal.h
+        # sources
         UserCode/Src/Control/pid.cpp
         UserCode/Src/Device/imu.cpp
         UserCode/Src/HAL/bmi088.cpp
@@ -48,8 +42,17 @@ add_executable(${CMAKE_PROJECT_NAME}
         UserCode/Src/Object/Gimbal.cpp
         UserCode/Src/RTOS/rtos.cpp
         UserCode/Src/RTOS/callback.cpp
-        UserCode/Inc/Control/mahony.h
         UserCode/Src/Control/mahony.cpp
+
+        # headers are optional, but harmless
+        UserCode/Inc/Device/motor.h
+        UserCode/Inc/Device/imu.h
+        UserCode/Inc/Device/rc.h
+        UserCode/Inc/Control/pid.h
+        UserCode/Inc/HAL/bmi088.h
+        UserCode/Inc/RTOS/rtos.h
+        UserCode/Inc/Object/Gimbal.h
+        UserCode/Inc/Control/mahony.h
 )
 
 # Add STM32CubeMX generated sources
@@ -60,20 +63,14 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
 )
 
-# Add sources to executable
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user sources here
-        UserCode/Src
-)
-
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user defined include paths
-        UserCode/Inc/RTOS
-        UserCode/Inc/Control
-        UserCode/Inc/Device
-        UserCode/Inc/HAL
-        UserCode/Inc/Object
+        ${CMAKE_SOURCE_DIR}/UserCode/Inc
+        ${CMAKE_SOURCE_DIR}/UserCode/Inc/Device
+        ${CMAKE_SOURCE_DIR}/UserCode/Inc/Control
+        ${CMAKE_SOURCE_DIR}/UserCode/Inc/HAL
+        ${CMAKE_SOURCE_DIR}/UserCode/Inc/RTOS
+        ${CMAKE_SOURCE_DIR}/UserCode/Inc/Object
 )
 
 # Add project symbols (macros)

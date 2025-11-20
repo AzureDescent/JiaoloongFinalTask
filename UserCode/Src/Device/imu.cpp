@@ -38,6 +38,20 @@ void IMU::Init(EulerAngle_t euler_deg_init)
     Bmi088Init();
     HAL_Delay(50);
 
+    // 初始校准
+    float gyro_sum[3] = {0.0f, 0.0f, 0.0f};
+    for (int i = 0; i < 500; i++)
+    {
+        ReadSensor();
+        gyro_sum[0] += raw_data_.gyro[0];
+        gyro_sum[1] += raw_data_.gyro[1];
+        gyro_sum[2] += raw_data_.gyro[2];
+        HAL_Delay(2);
+    }
+    gyro_bias_[0] = gyro_sum[0] / 500.0f;
+    gyro_bias_[1] = gyro_sum[1] / 500.0f;
+    gyro_bias_[2] = gyro_sum[2] / 500.0f;
+
     euler_deg_ = euler_deg_init;
 
     euler_rad_.yaw = euler_deg_init.yaw * M_PI / 180.0f;
