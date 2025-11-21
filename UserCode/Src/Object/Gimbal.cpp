@@ -62,8 +62,8 @@ void Gimbal::Init()
 {
     //TODO: Verify the i_max, out_max
 
-    pitch_angle_pid_ = PID(6.f, 0.0f, 0.0f, 0.0f, 400.0f, 0.0f);
-    pitch_speed_pid_ = PID(56.0f, 0.7f, 12.f, 5000.0f, 12000.0f, 1.0f);
+    pitch_angle_pid_ = PID(2.3f, 0.0f, 0.0f, 0.0f, 400.0f, 0.0f);
+    pitch_speed_pid_ = PID(45.0f, 0.8f, 180.f, 5000.0f, 12000.0f, 0.8f);
     // 62 _ 78
 
     yaw_angle_pid_ = PID(2.3f, 0.0f, 0.0f, 0.0f, 800.0f,0.0f);
@@ -208,7 +208,7 @@ void Gimbal::Handle()
 
         case GIMBAL_MODE_PID:
         {
-            float fdb_angle_pitch = imu_feedback_.pitch;
+            fdb_angle_pitch = imu_feedback_.pitch;
             float fdb_speed_pitch = pitch_motor_.GetSpeed();
 
             float target_speed_pitch = pitch_angle_pid_.Calc(-target_pitch_angle_, fdb_angle_pitch);

@@ -23,13 +23,13 @@ uint8_t rx_buf[18];
 uint8_t rx_data[18];
 
 // 阶跃幅度 (例如 10.0 度)
-volatile float debug_step_amp = 20.0f;
+volatile float debug_step_amp = 15.0f;
 
 // 阶跃周期 (例如 2000ms，即 1秒正 1秒负)
 volatile uint32_t debug_step_period = 2000;
 
 // 阶跃中心点 (例如 0 度)
-volatile float debug_step_offset = -80.0f;
+volatile float debug_step_offset = 0.0f;
 
 void FillMotorCurrent(const int id, const int16_t current, uint8_t* data_1fe, uint8_t* data_2fe)
 {
@@ -139,12 +139,12 @@ void VControlTask(void* argument)
         {
             // 上半波: 中心 + 幅度
             // 如果是调 Pitch，就改 target_pitch_angle_
-            gimbal_controller.target_yaw_angle_ = debug_step_offset + debug_step_amp;
+            gimbal_controller.target_pitch_angle_ = debug_step_offset + debug_step_amp;
         }
         else
         {
             // 下半波: 中心 - 幅度
-            gimbal_controller.target_yaw_angle_ = debug_step_offset - debug_step_amp;
+            gimbal_controller.target_pitch_angle_ = debug_step_offset - debug_step_amp;
         }
         // ====================
 

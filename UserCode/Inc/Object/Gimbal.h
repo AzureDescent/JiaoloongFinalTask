@@ -49,7 +49,9 @@ public:
     }
 
     float fdb_angle_yaw;
+    float fdb_angle_pitch;
     float target_yaw_angle_ = 0.0f;
+    float target_pitch_angle_ = 0.0f;
 
 private:
     Motor pitch_motor_;
@@ -59,8 +61,6 @@ private:
     PID pitch_speed_pid_;
     PID yaw_angle_pid_;
     PID yaw_speed_pid_;
-
-    float target_pitch_angle_ = 0.0f;
 
 
     float pitch_output_torque_ = 0.0f;
