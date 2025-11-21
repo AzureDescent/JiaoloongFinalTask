@@ -28,7 +28,7 @@ float CalculateFeedforward(const float current_angle)
     const float angle_rad = current_angle * (3.1415926f / 180.0f);
 
     // R² = 0.9817
-    const float a = 4250.0f;
+    const float a = 4037.5f;  // 95%*4250
     const float b = 1.0f;
     const float c = 0.f;
     const float d = -2600.f;
