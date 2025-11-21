@@ -23,10 +23,10 @@ uint8_t rx_buf[18];
 uint8_t rx_data[18];
 
 // 阶跃幅度 (例如 10.0 度)
-volatile float debug_step_amp = 15.0f;
+volatile float debug_step_amp = 10.0f;
 
 // 阶跃周期 (例如 2000ms，即 1秒正 1秒负)
-volatile uint32_t debug_step_period = 2000;
+volatile uint32_t debug_step_period = 4000;
 
 // 阶跃中心点 (例如 0 度)
 volatile float debug_step_offset = 0.0f;
