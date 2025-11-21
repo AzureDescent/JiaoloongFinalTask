@@ -27,12 +27,11 @@ float CalculateFeedforward(const float current_angle)
 {
     const float angle_rad = current_angle * (3.1415926f / 180.0f);
 
-    // 拟合数据来源: MATLAB测量数据拟合 (R-square: 0.9832)
-    // 拟合模型: y = a * sin(b * x + c) + d
-    const float a = 2375.52f;
-    const float b = 2.0000f;
-    const float c = -0.1364f;
-    const float d = -2333.98f;
+    // R² = 0.9817
+    const float a = 4250.0f;
+    const float b = 1.0f;
+    const float c = 0.f;
+    const float d = -2600.f;
 
     return a * sinf(b * angle_rad + c) + d;
 }
@@ -44,11 +43,8 @@ Gimbal::Gimbal():
 
 void Gimbal::Init()
 {
-    //TODO: Verify the i_max, out_max
-
-    pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 400.0f, 0.0f);
-    pitch_speed_pid_ = PID(30.0f, .5f, 10.f, 5000.0f, 12000.0f, 0.8f);
-    // 62 _ 78
+    pitch_angle_pid_ = PID(3.f, 0.0f, 0.5f, 0.0f, 400.0f, 0.0f);
+    pitch_speed_pid_ = PID(25.0f, 0.1f, 0.0f, 5000.0f, 12000.0f, 0.1f);
 
     yaw_angle_pid_ = PID(2.3f, 0.0f, 0.0f, 0.0f, 800.0f,0.0f);
     yaw_speed_pid_ = PID(69.0f, 0.062f, 305.f, 2000.0f, 12000.0f,0.8f);
