@@ -25,30 +25,14 @@ int16_t ConvertTorqueToCanCurrent(float torque, float torque_constant, float max
 
 float CalculateFeedforward(const float current_angle)
 {
-    // 一号云台
-    // const float angle_rad = current_angle * (3.1415926f / 180.0f);
-    //
-    // // 拟合公式：3500 * sin( 实际角度_rad - 29.2度对应的弧度 )
-    // const float a = 3500.0f; // 幅值
-    // const float b = 0.51f;    // 相位偏移 (平衡点弧度)
-    //
-    // // 返回所需的补偿电流值 (Raw Units)
-    // return a * sinf(angle_rad - b);
-
-    // 二号云台
-    // const float angle_rad = current_angle * (3.1415926f / 180.0f);
-    //
-    // // 2. 二号云台拟合参数
-    // const float a = 4200.0f;
-    // const float b = 0.69f;
-    //
-    // return -a * sinf(b - angle_rad);
     const float angle_rad = current_angle * (3.1415926f / 180.0f);
 
-    const float a = -1789.13f;
-    const float b = -3.54f;
-    const float c = -0.03f;
-    const float d = -2690.44f;
+    // 拟合数据来源: MATLAB测量数据拟合 (R-square: 0.9832)
+    // 拟合模型: y = a * sin(b * x + c) + d
+    const float a = 2375.52f;
+    const float b = 2.0000f;
+    const float c = -0.1364f;
+    const float d = -2333.98f;
 
     return a * sinf(b * angle_rad + c) + d;
 }
@@ -63,7 +47,7 @@ void Gimbal::Init()
     //TODO: Verify the i_max, out_max
 
     pitch_angle_pid_ = PID(2.0f, 0.0f, 0.0f, 0.0f, 400.0f, 0.0f);
-    pitch_speed_pid_ = PID(30.0f, 0.8f, 80.f, 5000.0f, 12000.0f, 0.8f);
+    pitch_speed_pid_ = PID(30.0f, .5f, 10.f, 5000.0f, 12000.0f, 0.8f);
     // 62 _ 78
 
     yaw_angle_pid_ = PID(2.3f, 0.0f, 0.0f, 0.0f, 800.0f,0.0f);
@@ -211,7 +195,7 @@ void Gimbal::Handle()
             fdb_angle_pitch = imu_feedback_.pitch;
             float fdb_speed_pitch = pitch_motor_.GetSpeed();
 
-            float target_speed_pitch = pitch_angle_pid_.Calc(-target_pitch_angle_, fdb_angle_pitch);
+            float target_speed_pitch = -pitch_angle_pid_.Calc(target_pitch_angle_, fdb_angle_pitch);
             float output_torque_pitch = pitch_speed_pid_.Calc(target_speed_pitch, fdb_speed_pitch);
 
             float feedforward_torque_pitch = CalculateFeedforward(fdb_angle_pitch);
